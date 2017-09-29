@@ -93,7 +93,7 @@ var Game = {
 	    		break;
 	    	case 2:
 	    		this.hideByIds(['startGameControls', 'gameEnd']);
-	    		document.getElementById('playerTurn').innerHTML = "PLAYER 1 turn";
+	    		document.getElementById('playerTurn').innerHTML = "PLAYER 2 turn";
 				this.showByIds(['playerControls', 'playerTurn', 'inGameControls']);
 
 	    		break;
