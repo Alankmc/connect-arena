@@ -1,5 +1,5 @@
 var Game = {
-	BOARD_SIZE: [8, 13],
+	BOARD_SIZE: [3, 3],
 	WIN_LENGTH: 3,
 	PLAYER_TIC: ["x" ,"o"],
 	EMPTY_TIC: " ",
