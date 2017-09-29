@@ -1,10 +1,12 @@
 var Game = {
-	BOARD_SIZE: [3, 3],
+
+	BOARD_SIZE: [1, 1],
+
 	WIN_LENGTH: 3,
 	PLAYER_TIC: ["x" ,"o"],
 	EMPTY_TIC: " ",
 	board: [],
-	boardString: "",
+	boardString: " ",
 	// 0 for tie, 1 for player 1, 2 for player 2
 	whoWon: 0,
 
@@ -76,25 +78,25 @@ var Game = {
 		switch(this.currentState) {
 	    	// idle
 	    	case -1:
-	    		this.hideByIds(['playerTurn', 'gameEnd', 'playerControls']);
+	    		this.hideByIds(['playerTurn', 'gameEnd', 'playerControls', 'inGameControls']);
 	    		this.showByIds(['startGameControls']);
 	    		break;
 	    	// Game end
 	    	case 0:
-	    		this.hideByIds(['playerTurn', 'playerControls']);
+	    		this.hideByIds(['playerTurn', 'playerControls', 'inGameControls']);
 	    		this.showByIds(['startGameControls', 'gameEnd']);
 	    		break;
 	    	case 1:
 	    		this.hideByIds(['startGameControls', 'gameEnd']);
 			    document.getElementById('playerTurn').innerHTML = "PLAYER 1 turn";
 
-	    		this.showByIds(['playerControls', 'playerTurn']);
+	    		this.showByIds(['playerControls', 'playerTurn', 'inGameControls']);
 
 	    		break;
 	    	case 2:
 	    		this.hideByIds(['startGameControls', 'gameEnd']);
 	    		document.getElementById('playerTurn').innerHTML = "PLAYER 1 turn";
-				this.showByIds(['playerControls', 'playerTurn']);
+				this.showByIds(['playerControls', 'playerTurn', 'inGameControls']);
 
 	    		break;
 	    	default:
@@ -103,7 +105,13 @@ var Game = {
 
 	},
 
+	/* ---------------------------------- 
+	*   Checking end game
+	*  -----------------------------------
+	*/
+
 	checkLine: function(line) {
+		console.log("Checking Line " + line)
 		var combo = 0;
 		var comboStart = null;
 
@@ -131,13 +139,16 @@ var Game = {
 
 	// Goes down a cell from the upper right or upper left (evidenced by isForward),
 	// and builds a line out of the diagonal
+	
 	buildDiagonal: function(row, col, isForward) {
+		console.log("Building diagonal for " + row + ", " + col + ", " + isForward);
 		var line = [];
 		var bump = isForward ? 1 : -1;
 		
-		for (var i = 0; i < this.BOARD_SIZE[0] - row; i++) {
-		
-			line.push(this.board[row + i][col]);
+		//for (var i = 0; i < this.BOARD_SIZE[0] - row; i++) {
+		while(row >= 0 && row < this.BOARD_SIZE[0] && col >= 0 && col < this.BOARD_SIZE[1]) {
+			line.push(this.board[row][col]);
+			row++;
 			col += bump;
 		}
 		
@@ -150,8 +161,8 @@ var Game = {
 		// Looks for lines
 		for (var i = 0; i < this.BOARD_SIZE[0]; i++) {
 			col = [];
-			for (var j = 0; j < this.BOARD_SIZE[0]; j++) {
-				col.push(this.board[j][i]);
+			for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
+				col.push(this.board[i][j]);
 			}
 			// Vertical and Horizontal
 			if (this.checkLine(col) || this.checkLine(this.board[i])) {
@@ -161,16 +172,24 @@ var Game = {
 			}
 		}
 
-		// Diagonal
+		// Compare diagonals
+		// Build diagonals going down the vertical sides
 		for (var i = 0; i < this.BOARD_SIZE[0] - this.WIN_LENGTH + 1; i++) {
-			for (var j = 0; j < this.BOARD_SIZE[1] - this.WIN_LENGTH + 1; j++) {
-				if (this.checkLine(this.buildDiagonal(i, j, true)) || 
-					this.checkLine(this.buildDiagonal(i, this.BOARD_SIZE[0] - 1 - j, false))) {
-				
-					this.whoWon = this.currentState;
-					// this.currentState = 0;
-					return true;
-				}
+			
+			if (this.checkLine(this.buildDiagonal(i, 0, true)) || 
+				this.checkLine(this.buildDiagonal(i, this.BOARD_SIZE[1] - 1, false))) {
+				this.whoWon = this.currentState;
+			
+				return true;
+			}
+		}
+		// Build diagonals going down the horizontal sides
+		for (var i = 1; i < this.BOARD_SIZE[1] - this.WIN_LENGTH + 1; i++) {
+			if (this.checkLine(this.buildDiagonal(0, i, true)) || 
+				this.checkLine(this.buildDiagonal(0, this.BOARD_SIZE[1] - 1 - i, false))) {
+				this.whoWon = this.currentState;
+
+				return true;
 			}
 		}
 
@@ -183,6 +202,7 @@ var Game = {
 		return false;
 	},
 
+/* ----------------------------------------*/
 	playerMove: function(player, row, col) {
 		
 		this.numberOfMoves++;
@@ -205,19 +225,26 @@ var Game = {
 		this.toggleDivsDueToState();
 	},
 
+	// Return negative number if incorrect
+	getPositiveNum: function(str) {
+		var num = parseInt(str, 10);
+
+		if (isNaN(num)) {
+			return -1;
+		}
+		return num;
+	},
+
 	playerPutInCoords: function() {
 	    var row = document.getElementById('playerInputRow').value;
 	    var col = document.getElementById('playerInputCol').value;
-	    row = parseInt(row, 10);
-	    col = parseInt(col, 10);
+	    row = this.getPositiveNum(row);
+	    col = this.getPositiveNum(col);
 	    // console.log(row)
 	    // console.log(col)
 	    // console.log(row)
-	    if (isNaN(row) || isNaN(col) ) {
-	    	this.showByIds(['wrongCoords']);
-	    	return;
-	    }
 
+	    // Indexing starts with 0! Decrement
 	    row--;
 	    col--;
 
@@ -237,9 +264,28 @@ var Game = {
 	},
 
 	newGame: function() {
+		// Get Board sizes
+		var numRows = this.getPositiveNum(document.getElementById('boardInputRows').value);
+		var numCols = this.getPositiveNum(document.getElementById('boardInputCols').value);
+		var winLength = this.getPositiveNum(document.getElementById('boardInputLength').value);
+
+		if (numRows >= 3 && numCols >= 3 && winLength >= 3 && winLength <= Math.min(numRows, numCols)) {
+			this.BOARD_SIZE = [numRows, numCols];
+			this.WIN_LENGTH = winLength;
+		} else {
+			this.showByIds(["wrongParams"]);
+			return;
+		}
+		this.hideByIds(["wrongParams"]);
 		this.resetBoard();
 		this.currentState = Math.floor(Math.random() * 2) + 1
 		this.numberOfMoves = 0;
+		this.toggleDivsDueToState();
+	},
+
+	resetGame: function() {
+		this.resetBoard();
+		this.currentState = -1;
 		this.toggleDivsDueToState();
 	},
 
@@ -256,7 +302,6 @@ var Game = {
 		// Make empty board
 		this.drawBoard();
 	},
-
 
 	init: function() {
 		this.resetBoard();

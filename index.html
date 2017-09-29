@@ -1,47 +1,65 @@
-<!DOCTYPE html>
-<html>
-  	<head>
+	<!DOCTYPE html>
+	<html>
+	<head>
 		<meta charset="UTF-8">
 		<title>Connect Arena!</title>
 	</head>
 	<body>
-  		<table width="100%">
-  			<tr>
-  				<th>
-  					<div>
-  						<p> Image for the left guy </p>
-  					</div>
-  				</th>
-  				<th>
-  					<div>
-  						<p> Board </p>
-  						<pre id="boardString"></pre>
-  						<p id="playerTurn"></p>
-  						<p id="gameEnd"></p> 
-  					</div>
-  				</th>
-  				<th>
-  					<div>
-  						<p> Image for the right guy </p>
-  					</div>
-  				</th>
-  			</tr>
-  		</table>
-  		<div id="gameControls">
-  			<div id="startGameControls">
-  				<button onclick="Game.newGame()">Start New Game</button>
-  			</div>
-  			<div id="playerControls">
-  				Row: <input id="playerInputRow"></input>
-  				Column: <input id="playerInputCol"></input>
-  				<button onclick="Game.playerPutInCoords()">Submit</button>
-  				<p id="wrongCoords" style="display:none">Please, correct Inputs</p>
-  			</div>
-  			
-		</div>
+		
+		<!-- Game window table -->
+		<table width="100%">
+			<tr>
+				<th>
+					<div>
+						<p> Image for the left guy </p>
+					</div>
+				</th>
+				<th>
+					<div>
+						<p> Board </p>
+						<pre id="boardString"></pre>
+						<p id="playerTurn"></p>
+						<p id="gameEnd"></p> 
+					</div>
+				</th>
+				<th>
+					<div>
+						<p> Image for the right guy </p>
+					</div>
+				</th>
+			</tr>
+		</table>
+		
+		<!-- game controls -->
+		<table id="gameControls" width="100%">
+			<tr>
+				<td>
+					<div id="startGameControls">
+						Number of Rows (min 3): <input id="boardInputRows">  <br>
+						Number of Collumns (min 3): <input id="boardInputCols"></input><br>
+						Win Length (min 3, max smallest of two above values): <input id="boardInputLength"></input><br>
+						(Tic Tac Toe would be 3 rows, 3 cols, 3 win length, for example).<br>
+						<button onclick="Game.newGame()">Start New Game</button>
+
+						<p id="wrongParams" style="display:none">Please, correct Inputs</p>
+					</div>
+					<div id="playerControls">
+						Row: <input id="playerInputRow"></input>
+						Column: <input id="playerInputCol"></input>
+						<button onclick="Game.playerPutInCoords()">Submit</button>
+						<p id="wrongCoords" style="display:none">Please, correct Inputs</p>
+					</div>
+				</td>
+				<td>
+					<div id="inGameControls">
+						<button onclick="Game.resetGame()">Reset Game</button>
+					</div>
+				</td>
+			</tr>
+		</table>
 
 
 		<script src="index.js"></script>
 
 	</body>
-</html>
+	</html>
