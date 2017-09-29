@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+		<meta charset="UTF-8">
+		<title>Connect Arena!</title>
+	</head>
+	<body>
+  		<table width="100%">
+  			<tr>
+  				<th>
+  					<div>
+  						<p> Image for the left guy </p>
+  					</div>
+  				</th>
+  				<th>
+  					<div>
+  						<p> Board </p>
+  						<pre id="boardString"></pre>
+  						<p id="playerTurn"></p>
+  						<p id="gameEnd"></p> 
+  					</div>
+  				</th>
+  				<th>
+  					<div>
+  						<p> Image for the right guy </p>
+  					</div>
+  				</th>
+  			</tr>
+  		</table>
+  		<div id="gameControls">
+  			<div id="startGameControls">
+  				<button onclick="Game.newGame()">Start New Game</button>
+  			</div>
+  			<div id="playerControls">
+  				Row: <input id="playerInputRow"></input>
+  				Column: <input id="playerInputCol"></input>
+  				<button onclick="Game.playerPutInCoords()">Submit</button>
+  				<p id="wrongCoords" style="display:none">Please, correct Inputs</p>
+  			</div>
+  			
+		</div>
+
+
+		<script src="index.js"></script>
+
+	</body>
+</html>
