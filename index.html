@@ -15,9 +15,10 @@
 					</div>
 				</th>
 				<th>
-					<div>
-						<p> Board </p>
+					<div id="boardCell">
+						<p> Board </p><br>
 						<pre id="boardString"></pre>
+						<table id="boardTable"></table>
 						<p id="playerTurn"></p>
 						<p id="gameEnd"></p> 
 					</div>
@@ -39,20 +40,20 @@
 						Number of Collumns (min 3): <input id="boardInputCols"></input><br>
 						Win Length (min 3, max smallest of two above values): <input id="boardInputLength"></input><br>
 						(Tic Tac Toe would be 3 rows, 3 cols, 3 win length, for example).<br>
-						<button onclick="Game.newGame()">Start New Game</button>
+						<button onclick="game.newGame()">Start New Game</button>
 
 						<p id="wrongParams" style="display:none">Please, correct Inputs</p>
 					</div>
 					<div id="playerControls">
 						Row: <input id="playerInputRow"></input>
 						Column: <input id="playerInputCol"></input>
-						<button onclick="Game.playerPutInCoords()">Submit</button>
+						<button onclick="game.playerPutInCoords()">Submit</button>
 						<p id="wrongCoords" style="display:none">Please, correct Inputs</p>
 					</div>
 				</td>
 				<td>
 					<div id="inGameControls">
-						<button onclick="Game.resetGame()">Reset Game</button>
+						<button onclick="game.resetGame()">Reset Game</button>
 					</div>
 				</td>
 			</tr>

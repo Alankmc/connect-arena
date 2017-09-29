@@ -1,18 +1,18 @@
-var Game = {
-	BOARD_SIZE: [1, 1],
-	WIN_LENGTH: 3,
-	PLAYER_TIC: ["x" ,"o"],
-	EMPTY_TIC: " ",
-	board: [],
-	boardString: " ",
+function Game() {
+	this.BOARD_SIZE = [1, 1];
+	this.WIN_LENGTH = 3;
+	this.PLAYER_TIC = ["x" ,"o"];
+	this.EMPTY_TIC = " ";
+	this.board = [];
+	this.boardString = " ";
 	// 0 for tie, 1 for player 1, 2 for player 2
-	whoWon: 0,
+	this.whoWon = 0;
 
-	numberOfMoves: 0,
+	this.numberOfMoves = 0;
 	// -1 for idle, 0 for game End, 1 and 2 for players
-	currentState: -1,
+	this.currentState = -1;
 
-	drawBoard: function() {
+	this.drawBoard = function() {
 		var str = "    ";
 		var colIndex = 1;
 		var lineIndex = 1;
@@ -53,26 +53,26 @@ var Game = {
 
 		this.boardString = str;
 	    document.getElementById('boardString').innerHTML = str;
-	},
+	};
 
-	nextChar : function(c) {
+	this.nextChar = function(c) {
 	    return String.fromCharCode(c.charCodeAt(0) + 1);
-	},
+	};
 
-	hideByIds: function(ids) {
+	this.hideByIds = function(ids) {
 		for (var i = 0; i < ids.length; i++) {
 			document.getElementById(ids[i]).style.display = 'none';
 		}
-	},
+	};
 	
-	showByIds: function(ids) {
+	this.showByIds = function(ids) {
 		for (var i = 0; i < ids.length; i++) {
 			document.getElementById(ids[i]).style.display = 'block';
 		}
-	},
+	};
 
 
-	toggleDivsDueToState: function() {
+	this.toggleDivsDueToState = function() {
 		switch(this.currentState) {
 	    	// idle
 	    	case -1:
@@ -101,14 +101,14 @@ var Game = {
 	    		break;
 	    }
 
-	},
+	};
 
 	/* ---------------------------------- 
 	*   Checking end game
 	*  -----------------------------------
 	*/
 
-	checkLine: function(line) {
+	this.checkLine = function(line) {
 		console.log("Checking Line " + line)
 		var combo = 0;
 		var comboStart = null;
@@ -133,12 +133,12 @@ var Game = {
 		}
 
 		return false;
-	},
+	};
 
 	// Goes down a cell from the upper right or upper left (evidenced by isForward),
 	// and builds a line out of the diagonal
 	
-	buildDiagonal: function(row, col, isForward) {
+	this.buildDiagonal = function(row, col, isForward) {
 		console.log("Building diagonal for " + row + ", " + col + ", " + isForward);
 		var line = [];
 		var bump = isForward ? 1 : -1;
@@ -151,9 +151,9 @@ var Game = {
 		}
 		
 		return line;
-	},
+	};
 
-	lookForEnd: function() {
+	this.lookForEnd = function() {
 		var col;
 
 		// Looks for lines
@@ -198,10 +198,10 @@ var Game = {
 		}
 
 		return false;
-	},
+	};
 
 /* ----------------------------------------*/
-	playerMove: function(player, row, col) {
+	this.playerMove = function(player, row, col) {
 		
 		this.numberOfMoves++;
 		this.board[row][col] = this.PLAYER_TIC[player - 1];
@@ -221,19 +221,19 @@ var Game = {
 		}
 		this.drawBoard();
 		this.toggleDivsDueToState();
-	},
+	};
 
 	// Return negative number if incorrect
-	getPositiveNum: function(str) {
+	this.getPositiveNum = function(str) {
 		var num = parseInt(str, 10);
 
 		if (isNaN(num)) {
 			return -1;
 		}
 		return num;
-	},
+	};
 
-	playerPutInCoords: function() {
+	this.playerPutInCoords = function() {
 	    var row = document.getElementById('playerInputRow').value;
 	    var col = document.getElementById('playerInputCol').value;
 	    row = this.getPositiveNum(row);
@@ -259,9 +259,9 @@ var Game = {
 
 		this.hideByIds(['wrongCoords']);
 		this.playerMove(this.currentState, row, col);
-	},
+	};
 
-	newGame: function() {
+	this.newGame = function() {
 		// Get Board sizes
 		var numRows = this.getPositiveNum(document.getElementById('boardInputRows').value);
 		var numCols = this.getPositiveNum(document.getElementById('boardInputCols').value);
@@ -279,15 +279,15 @@ var Game = {
 		this.currentState = Math.floor(Math.random() * 2) + 1
 		this.numberOfMoves = 0;
 		this.toggleDivsDueToState();
-	},
+	};
 
-	resetGame: function() {
+	this.resetGame = function() {
 		this.resetBoard();
 		this.currentState = -1;
 		this.toggleDivsDueToState();
-	},
+	};
 
-	resetBoard: function() {
+	this.resetBoard = function() {
 		this.board = [];
 		for (var i = 0; i < this.BOARD_SIZE[0]; i++) {
 			var newLine = [];
@@ -299,15 +299,16 @@ var Game = {
 
 		// Make empty board
 		this.drawBoard();
-	},
+	};
 
-	init: function() {
+	this.init = function() {
 		this.resetBoard();
 		this.toggleDivsDueToState();
-	},
+	};
 };
 
-Game.init();
+game = new Game();
+game.init()
 
 
 
