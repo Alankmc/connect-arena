@@ -1,10 +1,11 @@
 
 function Game() {
-	this.BOARD_SIZE = [1, 1];
+	this.BOARD_SIZE = [2, 2];
 	this.WIN_LENGTH = 3;
 	this.PLAYER_TIC = [1, 2];
 	this.EMPTY_TIC = 0;
-	this.TIC_RESOURCES = ["images/blank2.png", "images/x2.png", "images/o2.png"];
+	this.TIC_RESOURCES = ["images/blank3.png", "images/x3.png", "images/o3.png"];
+	this.GRID_RESOURCES = ["images/barEndH.png", "images/barMidH.png", "images/barEndV.png", "images/barMidV.png", "images/cross.png"]
 	this.board = [];
 	this.boardString = " ";
 	// 0 for tie, 1 for player 1, 2 for player 2
@@ -49,18 +50,62 @@ function Game() {
 
 		for (var i = 0; i < this.BOARD_SIZE[0]; i++) {
 			for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
+				var thisBar = new Image();
 
+				if (i == 0) {
+					// First line, bar End must point upward
+					thisBar.src = this.GRID_RESOURCES[2];
+				} else if ( i == this.BOARD_SIZE[0] - 1) {
+					// Last line, bar End must point downward
+					thisBar.src = this.GRID_RESOURCES[2];
+					thisBar.style.transform = "rotate(180deg)"; 
+				} else {
+					// Middle
+					thisBar.src = this.GRID_RESOURCES[3];
+				}
+
+				// Tic Image
 				var newImg = document.createElement("img");
 				
 				newImg.id = "boardCell_"+i+"_"+j;
 				newImg.src = this.TIC_RESOURCES[0];
 				newImg.row = i;
 				newImg.col = j;
+				// Event listener that self defeats
 				newImg.addEventListener("click", function blankListener() {
 					game.clickedCell(this.row, this.col);
 					this.removeEventListener("click", blankListener);
 				}, false);
+
+				// Append images. First, bar
+				if (j != 0) {
+					boardDiv.appendChild(thisBar);
+				}
 				boardDiv.appendChild(newImg);
+			}
+
+			// Now, make horizontal bars
+			if (i != this.BOARD_SIZE[0] - 1) {
+				boardDiv.appendChild(document.createElement("br"));
+				for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
+					var thisBar = new Image();
+					var thisCross = new Image();
+					thisCross.src = this.GRID_RESOURCES[4];
+
+					if (j == 0) {
+						thisBar.src = this.GRID_RESOURCES[0];
+					} else if (j == this.BOARD_SIZE[1] - 1) {
+						thisBar.src = this.GRID_RESOURCES[0];
+						thisBar.style.transform = "rotate(180deg)"; 
+					} else {
+						thisBar.src = this.GRID_RESOURCES[1];
+					}
+
+					if (j != 0) {
+						boardDiv.appendChild(thisCross);
+					}
+					boardDiv.appendChild(thisBar);
+				}
 			}
 			boardDiv.appendChild(document.createElement("br"));
 		}
