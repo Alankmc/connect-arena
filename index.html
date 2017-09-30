@@ -3,6 +3,9 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Connect Arena!</title>
+
+		<link rel="stylesheet" type="text/css" href="main.css">
+
 	</head>
 	<body>
 		
@@ -15,11 +18,15 @@
 					</div>
 				</th>
 				<th>
-					<div id="boardCell" line-heigth="0">
+					<div id="boardCell">
 						<p> Board </p>
 						<div id="boardDiv" line-height="0">
 						</div>
-						<p id="playerTurn"></p>
+						<br>
+						<div id="playerTurn">
+							Player turn: <br>
+							<img id="playerIcon" src="images/blank.png"></img> 
+						</div>
 						<p id="gameEnd"></p> 
 					</div>
 				</th>
@@ -36,11 +43,13 @@
 			<tr>
 				<td>
 					<div id="startGameControls">
-						Number of Rows (min 3): <input id="boardInputRows">  <br>
-						Number of Columns (min 3): <input id="boardInputCols"></input><br>
-						Win Length (min 3, max smallest of two above values): <input id="boardInputLength"></input><br>
-						(Tic Tac Toe would be 3 rows, 3 cols, 3 win length, for example).<br>
-						<button onclick="game.newGame()">Start New Game</button>
+						<form id="gameControlsForm" action="javascript:game.newGame();">
+							Number of Rows (min 3): <input id="boardInputRows" /><br>
+							Number of Columns (min 3): <input id="boardInputCols" /><br>
+							Win Length (min 3, max smallest of two above values): <input id="boardInputLength" /><br>
+							(Tic Tac Toe would be 3 rows, 3 cols, 3 win length, for example).<br>
+							<input type="submit" value="Start New Game" />
+						</form>
 
 						<p id="wrongParams" style="display:none">Please, correct Inputs</p>
 					</div>
@@ -54,7 +63,6 @@
 				</td>
 			</tr>
 		</table>
-
 
 		<script src="index.js"></script>
 
