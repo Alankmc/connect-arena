@@ -1,6 +1,6 @@
 
 function Game() {
-	this.BOARD_SIZE = [3, 3];
+	this.BOARD_SIZE = [1, 1];
 	this.WIN_LENGTH = 3;
 	this.PLAYER_TIC = [1, 2];
 	this.EMPTY_TIC = 0;
@@ -9,7 +9,6 @@ function Game() {
 	this.boardString = " ";
 	// 0 for tie, 1 for player 1, 2 for player 2
 	this.whoWon = 0;
-
 	this.numberOfMoves = 0;
 	// -1 for idle, 0 for game End, 1 and 2 for players
 	this.currentState = -1;
@@ -45,41 +44,25 @@ function Game() {
 		var game = this;
 
 		var boardDiv = document.createElement("div");
-
-		// var newBoardTable = document.createElement("table");
-		// newBoardTable["border-collapse"] = "collapse";
-		// newBoardTable.allign = "center";
-		// newBoardTable.border = "2px";	
-		// newBoardTable.setAttribute("id", "boardTable");
+		boardDiv.id = "boardDiv";
+		boardDiv.style["line-height"] = 0;
 
 		for (var i = 0; i < this.BOARD_SIZE[0]; i++) {
-			// var newTR = document.createElement("tr");
-
 			for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
 
-				// var newTD = document.createElement("td");
 				var newImg = document.createElement("img");
 				
 				newImg.id = "boardCell_"+i+"_"+j;
 				newImg.src = this.TIC_RESOURCES[0];
 				newImg.row = i;
 				newImg.col = j;
-				// newImg.style.display = "block";
-				// onclick.... hope it works
-				newImg["vertical-align"] = "bottom";
 				newImg.addEventListener("click", function blankListener() {
 					game.clickedCell(this.row, this.col);
 					this.removeEventListener("click", blankListener);
 				}, false);
-				// newTD.padding = 0;
-				// newTR.padding = 0;
-				// newTD.appendChild(newImg);
-				// newTR.appendChild(newTD);
-				// newImg.border = "1px";
 				boardDiv.appendChild(newImg);
 			}
 			boardDiv.appendChild(document.createElement("br"));
-			// newBoardTable.appendChild(newTR);
 		}
 
 		this.el("boardCell").replaceChild(boardDiv, this.boardElement);
@@ -110,18 +93,17 @@ function Game() {
 	    		this.hideByIds(['playerTurn', 'playerControls', 'inGameControls']);
 	    		this.showByIds(['startGameControls', 'gameEnd']);
 	    		break;
+    		// Player 1
 	    	case 1:
 	    		this.hideByIds(['startGameControls', 'gameEnd']);
 			    document.getElementById('playerTurn').innerHTML = "PLAYER 1 turn";
-
 	    		this.showByIds(['playerControls', 'playerTurn', 'inGameControls']);
-
 	    		break;
+	    	// Player 2
 	    	case 2:
 	    		this.hideByIds(['startGameControls', 'gameEnd']);
 	    		document.getElementById('playerTurn').innerHTML = "PLAYER 2 turn";
 				this.showByIds(['playerControls', 'playerTurn', 'inGameControls']);
-
 	    		break;
 	    	default:
 	    		break;
@@ -135,26 +117,29 @@ function Game() {
 	*/
 
 	this.checkLine = function(line) {
-		// console.log("Checking Line " + line)
-		var combo = 0;
-		var comboStart = null;
+		console.log("Checking Line " + line)
+		var comboLength = 0;
+		var comboStart = 0;
 
 		for (var i = 0; i < line.length; i++) {
 			if (line[i] != this.EMPTY_TIC) {
 				if (comboStart == 0) {
-					combo++;
-					comboStart = time[i];
+					comboLength++;
+					comboStart = line[i];
 				} else {
 					if (line[i] == comboStart) {
-						combo++;
-						if (combo >= this.WIN_LENGTH) {
+						comboLength++;
+						if (comboLength >= this.WIN_LENGTH) {
 							return true;
 						}
 					} else {
-						combo = 1;
+						comboLength = 1;
 						comboStart = line[i];
 					}
 				}
+			} else {
+				comboStart = 0;
+				comboLength = 0;
 			}
 		}
 
@@ -163,7 +148,6 @@ function Game() {
 
 	// Goes down a cell from the upper right or upper left (evidenced by isForward),
 	// and builds a line out of the diagonal
-	
 	this.buildDiagonal = function(row, col, isForward) {
 		// console.log("Building diagonal for " + row + ", " + col + ", " + isForward);
 		var line = [];
