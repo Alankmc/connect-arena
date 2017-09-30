@@ -7,7 +7,7 @@
 	<body>
 		
 		<!-- Game window table -->
-		<table width="100%">
+		<table allign="center" width="100%" border="0" border-collapse="collapse">
 			<tr>
 				<th>
 					<div>
@@ -15,10 +15,10 @@
 					</div>
 				</th>
 				<th>
-					<div id="boardCell">
-						<p> Board </p><br>
-						<pre id="boardString"></pre>
-						<table id="boardTable"></table>
+					<div id="boardCell" line-heigth="0">
+						<p> Board </p>
+						<div id="boardDiv" line-height="0">
+						</div>
 						<p id="playerTurn"></p>
 						<p id="gameEnd"></p> 
 					</div>
@@ -45,10 +45,6 @@
 						<p id="wrongParams" style="display:none">Please, correct Inputs</p>
 					</div>
 					<div id="playerControls">
-						Row: <input id="playerInputRow"></input>
-						Column: <input id="playerInputCol"></input>
-						<button onclick="game.playerPutInCoords()">Submit</button>
-						<p id="wrongCoords" style="display:none">Please, correct Inputs</p>
 					</div>
 				</td>
 				<td>
