@@ -95,16 +95,19 @@ function Game() {
 	    		break;
     		// Player 1
 	    	case 1:
+	    	case 2:
 	    		this.hideByIds(['startGameControls', 'gameEnd']);
-			    document.getElementById('playerTurn').innerHTML = "PLAYER 1 turn";
+			    this.el("playerIcon").src = this.TIC_RESOURCES[this.currentState];
 	    		this.showByIds(['playerControls', 'playerTurn', 'inGameControls']);
 	    		break;
 	    	// Player 2
+	    	/*
 	    	case 2:
 	    		this.hideByIds(['startGameControls', 'gameEnd']);
 	    		document.getElementById('playerTurn').innerHTML = "PLAYER 2 turn";
 				this.showByIds(['playerControls', 'playerTurn', 'inGameControls']);
 	    		break;
+	    		*/
 	    	default:
 	    		break;
 	    }
