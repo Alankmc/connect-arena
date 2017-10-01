@@ -19,9 +19,22 @@
 						<img id="player1Mug" src="images/mugshots/blank.png"></img><br>
 						<br>
 						<div id="selectPlayer1" class="playerSelect">
-							Select Player<br>
-							<img class="humanIcon" onclick="playerSelect.selectedPlayer(1, 'human');"></img>
-							<img class="randomIcon" onclick="playerSelect.selectedPlayer(1, 'random');"></img><br>
+							<p><i style="font-size:larger">Select Player</i></p>
+							<table class="playerSelectTable">
+								<tr>
+									<td>
+										<img class="humanIcon" onclick="playerSelect.selectedPlayer(1, 'human');"></img>
+									</td>
+									<td>
+										<img class="randomIcon" onclick="playerSelect.selectedPlayer(1, 'random');"></img>
+									</td>
+								</tr>
+								<tr>
+									<td class="playerLabel">Human</td>
+									<td class="playerLabel">Random</td>
+								</tr>
+							</table>
+							<br>
 						</div>
 
 					</div>
@@ -46,9 +59,21 @@
 						<img id="player2Mug" style="transform:rotatey(180deg);" src="images/mugshots/blank.png"></img><br>
 						<br>
 						<div id="selectPlayer2" class="playerSelect">
-							Select Player<br>
-							<img class="humanIcon" onclick="playerSelect.selectedPlayer(2, 'human');"></img>
-							<img class="randomIcon" onclick="playerSelect.selectedPlayer(2, 'random');"></img><br>
+							<p><i style="font-size:larger">Select Player</i></p>
+							<table class="playerSelectTable">
+								<tr>
+									<td>
+										<img class="humanIcon" onclick="playerSelect.selectedPlayer(2, 'human');"></img>
+									</td>
+									<td>
+										<img class="randomIcon" onclick="playerSelect.selectedPlayer(2, 'random');"></img>
+									</td>
+								</tr>
+								<tr>
+									<td class="playerLabel">Human</td>
+									<td class="playerLabel">Random</td>
+								</tr>
+							</table>
 						</div>
 					</div>
 				</th>

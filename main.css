@@ -2,6 +2,10 @@ p, div, form, table, td, th, tr {
 	font-family:"Trebuchet MS";
 }
 
+.playerLabel {
+	font-size:small;
+}
+
 #player1Tic {
 	content:url("images/x3.png");
 }
@@ -15,5 +19,12 @@ p, div, form, table, td, th, tr {
 }
 
 .randomIcon{
-	content:url("http://via.placeholder.com/60x60");
+	content:url("images/icons/random_icon.png");
+}
+
+.playerSelectTable {
+	border-collapse: collapse;
+	margin:auto;
+	allign:"center";
+	width:"50%";
 }
