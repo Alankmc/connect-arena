@@ -23,10 +23,10 @@
 							<table class="playerSelectTable">
 								<tr>
 									<td>
-										<img class="humanIcon" onclick="playerSelect.selectedPlayer(1, 'human');"></img>
+										<img class="humanIcon" onclick="playerSelect.selectedPlayer(1, 'human');" onmouseenter="showPlayerExplanation('human', true);" onmouseleave="hidePlayerExplanation();"></img>
 									</td>
 									<td>
-										<img class="randomIcon" onclick="playerSelect.selectedPlayer(1, 'random');"></img>
+										<img class="randomIcon" onclick="playerSelect.selectedPlayer(1, 'random');" onmouseenter="showPlayerExplanation('random', true);" onmouseleave="hidePlayerExplanation();"></img>
 									</td>
 								</tr>
 								<tr>
@@ -34,9 +34,7 @@
 									<td class="playerLabel">Random</td>
 								</tr>
 							</table>
-							<br>
 						</div>
-
 					</div>
 				</th>
 				<th>
@@ -63,10 +61,10 @@
 							<table class="playerSelectTable">
 								<tr>
 									<td>
-										<img class="humanIcon" onclick="playerSelect.selectedPlayer(2, 'human');"></img>
+										<img class="humanIcon" onclick="playerSelect.selectedPlayer(2, 'human');" onmouseenter="showPlayerExplanation('human', true);" onmouseleave="hidePlayerExplanation();"></img>
 									</td>
 									<td>
-										<img class="randomIcon" onclick="playerSelect.selectedPlayer(2, 'random');"></img>
+										<img class="randomIcon" onclick="playerSelect.selectedPlayer(2, 'random');" onmouseenter="showPlayerExplanation('random', true);" onmouseleave="hidePlayerExplanation();"></img>
 									</td>
 								</tr>
 								<tr>
@@ -74,12 +72,16 @@
 									<td class="playerLabel">Random</td>
 								</tr>
 							</table>
+							<br>
 						</div>
 					</div>
 				</th>
 			</tr>
 		</table>
-		
+
+		<div align="center" width="100%">
+			<p allign="center" id="explainPlayer" class="explain"></p>	
+		</div>
 		<!-- game controls -->
 		<table id="gameControls" width="100%">
 			<tr>

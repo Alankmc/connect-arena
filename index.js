@@ -26,6 +26,27 @@ function getPositiveNum(str) {
 	return num;
 };
 
+function showPlayerExplanation(playerType, isShow) {
+	var explainP = el("explainPlayer");
+	var explanation = "";
+	switch(playerType) {
+		case 'human': 
+			explanation = "Human Player! Click on the grid to set your Tic!";
+			break;
+		case 'random':
+			explanation = "Random Tics across the board! If you lose, you're not bad - just very VERY unlucky."
+			break;
+		default:
+			break;
+	}
+	explainP.innerHTML = explanation;
+	// console.log(explanation)
+};
+
+function hidePlayerExplanation() {
+	el("explainPlayer").innerHTML = "";
+};
+
 // Global Params:
 RESOURCES = {
 	TICS: {
@@ -152,7 +173,7 @@ function Board(game) {
 
 	// Returns the player number for who won, or -1 for not yet won
 	this.checkLine = function(line, winLength) {
-		console.log("Checking Line " + line + " for " + winLength)
+		// // console.log("Checking Line " + line + " for " + winLength);
 		var comboLength = 0;
 		var comboStart = 0;
 
@@ -184,7 +205,7 @@ function Board(game) {
 	// Goes down a cell from the upper right or upper left (evidenced by isForward),
 	// and builds a line out of the diagonal
 	this.buildDiagonal = function(row, col, isForward) {
-		// console.log("Building diagonal for " + row + ", " + col + ", " + isForward);
+		// // console.log("Building diagonal for " + row + ", " + col + ", " + isForward);
 		var line = [];
 		var bump = isForward ? 1 : -1;
 		
@@ -201,13 +222,13 @@ function Board(game) {
 	// Returns the 1 for won, 0 for tie, -1 for not yet won
 	this.lookForEnd = function(winLength) {
 		var col;
-		console.log("Looking for win of: " + winLength);
+		// // console.log("Looking for win of: " + winLength);
 
 		// Looks for lines
 		// Vertical
 		for (var i = 0; i < this.BOARD_SIZE[0]; i++) {
 
-			console.log("wtf man this" + this.board[i].length);
+			// // console.log("wtf man this" + this.board[i].length);
 
 			if (this.checkLine(this.board[i], winLength)) {
 				return 1;
@@ -254,7 +275,7 @@ function Board(game) {
 	this.resetBoard = function(numRows = this.BOARD_SIZE[0], numCols = this.BOARD_SIZE[1]) {
 		this.board = [];
 		this.BOARD_SIZE = [numRows, numCols]
-		console.log("Resetboard = " + this.BOARD_SIZE);
+		// console.log("Resetboard = " + this.BOARD_SIZE);
 		for (var i = 0; i < numRows; i++) {
 			var newLine = [];
 			for (var j = 0; j < numCols; j++) {
@@ -339,7 +360,7 @@ function Game() {
 		// this.board[row][col] = this.PLAYER_TIC[player - 1];
 
 		var wonYet = this.board.lookForEnd(this.WIN_LENGTH);
-		// console.log("== END! " + wonYet)
+		// // console.log("== END! " + wonYet)
 		if (wonYet >= 0) {
 			if (wonYet == 0) {
 	    		el('gameEnd').innerHTML = "TIE!";
@@ -439,7 +460,7 @@ function PlayerSelect(game) {
 	this.playerTypes = [null, null];
 
 	this.selectedPlayer = function (player, type) {
-		// console.log(this.mugs)
+		// // console.log(this.mugs)
 		// Does this make it faster?
 		// Like... even super marginally...?
 		// ....probably not
@@ -476,16 +497,16 @@ function RobotMaker(game) {
 	this.game = game;
 
 	this.randomMove = function (board) {
-		console.log("> Random robot move");
-		console.log(this)
+		// // console.log("> Random robot move");
+		// // console.log(this)
 		// Hopefully, getEmpties is in the robot. This smells like bad code though.
 		var emptyCells = this.getEmpties(board);
 		var pickCoordinate = Math.floor((emptyCells.length * Math.random()));
 
-		console.log("robot picked " + emptyCells[pickCoordinate]);
+		// // console.log("robot picked " + emptyCells[pickCoordinate]);
 		return emptyCells[pickCoordinate];
 		
-		// console.log(heyy)
+		// // console.log(heyy)
 	}
 
 	this.make = function(botType) {
@@ -526,8 +547,8 @@ function Robot(game, botType, makeMoveCallback) {
 	}
 
 	this.makeMove = function (board) {
-		console.log("Robot's makin a move");
-		// console.log(this)
+		// console.log("Robot's makin a move");
+		// // console.log(this)
 		// setTimeout(this.makeMoveCallback, this.DELAY);
 		return this.makeMoveCallback(board);
 	}
