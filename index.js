@@ -1,7 +1,7 @@
 /*
 	Connect Arena code, done as a fun, personal project.
 	Credits to Alan Cavalcant (alankmc) - 2017
-*/
+	*/
 
 // =================== HELPER FUNCTIONS =================
 // el as in "element"
@@ -36,13 +36,13 @@ function showPlayerExplanation(playerType, isShow) {
 	var explanation = "";
 	switch(playerType) {
 		case 'human': 
-			explanation = "Human Player! Click on the grid to set your Tic!";
-			break;
+		explanation = "Human Player! Click on the grid to set your Tic!";
+		break;
 		case 'random':
-			explanation = "Random Tics across the board! If you lose, you're not bad - just very VERY unlucky."
-			break;
+		explanation = "Random Tics across the board! If you lose, you're not bad - just very VERY unlucky."
+		break;
 		default:
-			break;
+		break;
 	}
 	explainP.innerHTML = explanation;
 	// console.log(explanation)
@@ -78,15 +78,15 @@ EMPTY_TIC = 0;
 
 /*
 	=================== BOARD =======================
-*/
+	*/
 
-function Board(game) {
-	this.BOARD_SIZE = [2, 2];
-	this.board = [];
-	this.boardElement = document.getElementById("boardDiv");
-	this.numFilled = 0;
-	this.game = game;
-	
+	function Board(game) {
+		this.BOARD_SIZE = [2, 2];
+		this.board = [];
+		this.boardElement = document.getElementById("boardDiv");
+		this.numFilled = 0;
+		this.game = game;
+
 	// Are you having fun, or are you getting board?
 	this.getBoard = function () {
 		return this.board;
@@ -215,14 +215,14 @@ function Board(game) {
 		var bump = isForward ? 1 : -1;
 		
 		//for (var i = 0; i < this.BOARD_SIZE[0] - row; i++) {
-		while(row >= 0 && row < this.BOARD_SIZE[0] && col >= 0 && col < this.BOARD_SIZE[1]) {
-			line.push(this.board[row][col]);
-			row++;
-			col += bump;
-		}
-		
-		return line;
-	};
+			while(row >= 0 && row < this.BOARD_SIZE[0] && col >= 0 && col < this.BOARD_SIZE[1]) {
+				line.push(this.board[row][col]);
+				row++;
+				col += bump;
+			}
+
+			return line;
+		};
 
 	// Returns the 1 for won, 0 for tie, -1 for not yet won
 	this.lookForEnd = function(winLength) {
@@ -259,15 +259,15 @@ function Board(game) {
 			if (this.checkLine(this.buildDiagonal(i, 0, true), winLength) || 
 				this.checkLine(this.buildDiagonal(i, this.BOARD_SIZE[1] - 1, false), winLength)) {
 				return 1;
-			}
 		}
+	}
 		// Build diagonals going down the horizontal sides
 		for (var i = 1; i < this.BOARD_SIZE[1] - winLength + 1; i++) {
 			if (this.checkLine(this.buildDiagonal(0, i, true), winLength) || 
 				this.checkLine(this.buildDiagonal(0, this.BOARD_SIZE[1] - 1 - i, false), winLength)) {
 				return 1;
-			}
 		}
+	}
 
 		// Check for tie (after everything, because someone might win at the very last move)
 		if (this.numFilled == this.BOARD_SIZE[0] * this.BOARD_SIZE[1]) {
@@ -315,30 +315,30 @@ function Game() {
 		switch(this.currentState) {
 	    	// idle
 	    	case -1:
-	    		hideByIds(['playerTurn', 'gameEnd', 'playerControls', 'inGameControls']);
-	    		showByIds(['startGameControls']);
-	    		this.playerSelect.toggleSelect(true);
-	    		break;
+	    	hideByIds(['playerTurn', 'gameEnd', 'playerControls', 'inGameControls']);
+	    	showByIds(['startGameControls']);
+	    	this.playerSelect.toggleSelect(true);
+	    	break;
 	    	// Game end
 	    	case 0:
-	    		hideByIds(['playerTurn', 'playerControls', 'inGameControls']);
-	    		showByIds(['startGameControls', 'gameEnd']);
-	    		this.playerSelect.toggleSelect(true);
-	    		break;
+	    	hideByIds(['playerTurn', 'playerControls', 'inGameControls']);
+	    	showByIds(['startGameControls', 'gameEnd']);
+	    	this.playerSelect.toggleSelect(true);
+	    	break;
     		// Player 1
-	    	case 1:
-	    	case 2:
-	    		hideByIds(['startGameControls', 'gameEnd']);
-			    el("playerIcon").src = RESOURCES.TICS[this.currentState][0];
-	    		showByIds(['playerControls', 'playerTurn', 'inGameControls']);
-	    		this,playerSelect.toggleSelect(false);
-	    		break;
-	    	default:
-	    		break;
-	    }
-	};
+    		case 1:
+    		case 2:
+    		hideByIds(['startGameControls', 'gameEnd']);
+    		el("playerIcon").src = RESOURCES.TICS[this.currentState][0];
+    		showByIds(['playerControls', 'playerTurn', 'inGameControls']);
+    		this,playerSelect.toggleSelect(false);
+    		break;
+    		default:
+    		break;
+    	}
+    };
 
-	
+
 	// Will begin looping through the game until it ends, in case there are only robots.
 	// If there's a human, it will be cut short.
 	this.signalNextMove = function() {
@@ -351,7 +351,7 @@ function Game() {
 				break;
 			}
 			// It's a robot. Make a move.
-			robotChoice = this.robots[this.currentState - 1].makeMove(this.board.getBoard());
+			robotChoice = this.robots[this.currentState - 1].makeMove(this.board.getBoard(), this.WIN_LENGTH);
 			this.playerMove(this.currentState, robotChoice[0], robotChoice[1]);
 		}
 
@@ -368,13 +368,13 @@ function Game() {
 		// // console.log("== END! " + wonYet)
 		if (wonYet >= 0) {
 			if (wonYet == 0) {
-	    		el('gameEnd').innerHTML = "TIE!";
-	    	} else {
-	    		this.whoWon = this.currentState;
-		    	el('gameEnd').innerHTML = "PLAYER " + this.whoWon + " WINS!";
+				el('gameEnd').innerHTML = "TIE!";
+			} else {
+				this.whoWon = this.currentState;
+				el('gameEnd').innerHTML = "PLAYER " + this.whoWon + " WINS!";
 			}
 			this.currentState = 0;
-	    } else {
+		} else {
 			if (this.currentState == 1) {
 				this.currentState = 2;
 			} else {
@@ -392,14 +392,14 @@ function Game() {
 			// It's not your damn turn boy, sit down
 			this.playerTypes[this.currentState - 1] != 'human') {
 			return;
-		}
+	}
 
-		this.playerMove(this.currentState, row, col);
-		this.signalNextMove();
-	};
+	this.playerMove(this.currentState, row, col);
+	this.signalNextMove();
+};
 
 
-	this.newGame = function() {
+this.newGame = function() {
 		// Get Board sizes
 		var numRows = getPositiveNum(el('boardInputRows').value);
 		var numCols = getPositiveNum(el('boardInputCols').value);
@@ -419,7 +419,7 @@ function Game() {
 			if (this.playerTypes[i] == 'human') {
 				this.robots[i] = null;
 			} else {
-				this.robots[i] = this.robotMaker.make(this.playerTypes[i]);
+				this.robots[i] = this.robotMaker.make(this.playerTypes[i], i + 1);
 			}
 		}
 
@@ -504,7 +504,8 @@ function RobotMaker(game) {
 	this.rockMove = function() {
 	};
 
-	this.randomMove = function (board) {
+	// Random simply put in tics in random places
+	this.randomMove = function (board, winLength) {
 		// // console.log("> Random robot move");
 		// // console.log(this)
 		// Hopefully, getEmpties is in the robot. This smells like bad code though.
@@ -517,15 +518,22 @@ function RobotMaker(game) {
 		// // console.log(heyy)
 	};
 
-	this.make = function(botType) {
+	// Soft Rock simply tries not to lose
+	this.softRockMove = function (board, winLength) {
+		// Finds the biggest enemy combo
+
+		// 
+	}
+
+	this.make = function(botType, myState) {
 		var newBot = null;
 
 		switch(botType) {
 			case 'random':
-				newBot = new Robot(game, 'random', this.randomMove);
-				break;
+			newBot = new Robot(game, 'random', this.randomMove, myState);
+			break;
 			default:
-				break;
+			break;
 		}
 
 		return newBot;
@@ -535,11 +543,13 @@ function RobotMaker(game) {
 
 /* ===================== ROBOT ================== */
 
-function Robot(game, botType, makeMoveCallback) {
+function Robot(game, botType, makeMoveCallback, myState) {
 	this.game = game;
 	this.botType = botType;
 	this.DELAY = 1000;
 	this.makeMoveCallback = makeMoveCallback;
+	this.myState = myState;
+	this.enemyState = (myState == 1) ? 2 : 1;
 
 	this.getEmpties = function (board) {
 		var emptyCells = [];
@@ -552,14 +562,117 @@ function Robot(game, botType, makeMoveCallback) {
 		}
 
 		return emptyCells;
-	}
+	};
 
-	this.makeMove = function (board) {
+	// Hm... I don't really like the sound of this, but let's see....
+	this.countLine = function(line, target) {
+		console.log("target" + target)
+		var currCombo = 0;
+		var maxCombo = 0;
+		var currStartCoord = 0;
+		var startCoords = [];
+
+		for (var i = 0; i < line.length; i++) {
+
+			if (line[i] == target) {
+				console.log("HIT")
+				if (currCombo == 0) {
+					currStartCoord = i;
+				}
+
+				currCombo++;
+			} else if (currCombo != 0) {
+				console.log("stop combo at " + i)
+				if (currCombo == maxCombo) {
+					startCoords.push([i - maxCombo]);
+				} else if (currCombo > maxCombo) {
+					maxCombo = currCombo;
+					startCoords = [i - maxCombo];
+					
+				}
+
+				currCombo = 0;
+			}
+		}
+
+		if (currCombo >= maxCombo && currCombo != 0) {
+			if (currCombo == maxCombo) {
+				// maxCombo = currCombo;
+				startCoords.push([line.length - maxCombo]);
+			} else if (currCombo > maxCombo) {
+				startCoords = [line.length - maxCombo];
+				maxCombo = currCombo;
+			}
+		}
+		console.log("MAX: " + maxCombo);
+		return {comboLen:maxCombo, start:startCoords};
+	};
+
+	this.findBiggestCombos = function(board, target) {
+		var h_size = board[0].length;
+		var v_size = board.length;
+		var biggestCoord = [null, null];
+		var biggestLength = [0, 0];
+		var currCombo = 0;
+		var currComboState = 0;
+		
+		// Horizontal
+		for (var i = 0; i < v_size; i++) {
+			var thisLine = this.countLine(board[i], target);
+
+			if (thisLine.comboLen != 0 && thisLine.comboLen >= biggestLength[0]) {
+
+				var toAppend = []
+				for (var j = 0; j < thisLine.start.length; j++) {
+					toAppend.push([i, thisLine.start[j]]);
+				}
+
+				if (thisLine.comboLen == biggestLength[0]) {
+					biggestCoord[0] = biggestCoord[0].concat(toAppend);
+				} else {
+					biggestLength[0] = thisLine.comboLen;
+					biggestCoord[0] = toAppend;
+				}
+			}
+		}
+
+		// Vertical
+		for (var i = 0; i < this.h_size; i++) {
+			col = [];
+			for (var j = 0; j< this.v_size; j++) {
+				col.push(this.board[j][i]);	
+			}
+			
+			var thisLine = this.countLine(col, target);
+			
+			if (thisLine.comboLen != 0 && thisLine.comboLen >= biggestLength[1]) {
+
+				var toAppend = []
+				for (var j = 0; j < thisLine.start.length; j++) {
+					toAppend.push([thisLine.start[j], i]);
+				}
+
+				if (thisLine.comboLen == biggestLength[1]) {
+					biggestCoord[1] = biggestCoord[1].concat(toAppend);
+				} else {
+					biggestLength[1] = thisLine.comboLen;
+					biggestCoord[1] = toAppend;
+				}
+			}	
+			
+		}
+
+		console.log(biggestLength);
+		console.log(biggestCoord);
+	};
+
+	this.makeMove = function (board, winLength) {
 		// console.log("Robot's makin a move");
 		// // console.log(this)
 		// setTimeout(this.makeMoveCallback, this.DELAY);
-		return this.makeMoveCallback(board);
-	}
+		this.findBiggestCombos(board, this.enemyState);
+		return this.makeMoveCallback(board, winLength);
+	};
 };
 
 
