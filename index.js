@@ -33,8 +33,26 @@ function getPositiveNum(str) {
 function Board(game) {
 	this.BOARD_SIZE = [2, 2];
 	// Redo this shit
-	this.TIC_RESOURCES = ["images/blank3.png", "images/x3.png", "images/o3.png"];
-	this.GRID_RESOURCES = ["images/barEndH.png", "images/barMidH.png", "images/barEndV.png", "images/barMidV.png", "images/cross.png"]
+	this.RESOURCES = {
+		TICS: {
+			BLANK:"images/blank3.png", 
+			1:["images/x3.png"],
+			2:["images/o3.png"],
+		},
+		GRID: {
+			VERTICAL: {
+				MID: ["images/barMidV.png"],
+				END: ["images/barEndV.png"]
+			},
+			HORIZONTAL: {
+				END: ["images/barEndH.png"],	
+				MID: ["images/barMidH.png"]
+			},
+			
+			CROSS: ["images/cross.png"]
+		}
+	};
+	
 	this.board = [];
 	this.boardElement = document.getElementById("boardDiv");
 	this.PLAYER_TIC = [1, 2];
@@ -46,8 +64,8 @@ function Board(game) {
 		this.board[row][col] = player;
 		var tic = el("boardCell_" + row + "_" + col);
 
-		tic.src = this.TIC_RESOURCES[player];
-		// tic.onclick = null;
+		tic.src = this.RESOURCES.TICS[player][0];
+		
 		this.numFilled++;
 	};
 
@@ -59,28 +77,27 @@ function Board(game) {
 
 		boardDiv.id = "boardDiv";
 		boardDiv.style["line-height"] = 0;
-
+		
 		for (var i = 0; i < this.BOARD_SIZE[0]; i++) {
 			for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
 				var thisBar = new Image();
 
 				if (i == 0) {
 					// First line, bar End must point upward
-					thisBar.src = this.GRID_RESOURCES[2];
+					thisBar.src = this.RESOURCES.GRID.VERTICAL.END[0];
 				} else if ( i == this.BOARD_SIZE[0] - 1) {
 					// Last line, bar End must point downward
-					thisBar.src = this.GRID_RESOURCES[2];
+					thisBar.src = this.RESOURCES.GRID.VERTICAL.END[0];
 					thisBar.style.transform = "rotate(180deg)"; 
 				} else {
 					// Middle
-					thisBar.src = this.GRID_RESOURCES[3];
+					thisBar.src = this.RESOURCES.GRID.VERTICAL.MID[0];
 				}
-
 				// Tic Image
 				var newImg = document.createElement("img");
 				
 				newImg.id = "boardCell_"+i+"_"+j;
-				newImg.src = this.TIC_RESOURCES[0];
+				newImg.src = this.RESOURCES.TICS.BLANK;
 				newImg.row = i;
 				newImg.col = j;
 				// Event listener that self defeats
@@ -103,15 +120,15 @@ function Board(game) {
 				for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
 					var thisBar = new Image();
 					var thisCross = new Image();
-					thisCross.src = this.GRID_RESOURCES[4];
+					thisCross.src = this.RESOURCES.GRID.CROSS[0];
 
 					if (j == 0) {
-						thisBar.src = this.GRID_RESOURCES[0];
+						thisBar.src = this.RESOURCES.GRID.HORIZONTAL.END[0];
 					} else if (j == this.BOARD_SIZE[1] - 1) {
-						thisBar.src = this.GRID_RESOURCES[0];
+						thisBar.src = this.RESOURCES.GRID.HORIZONTAL.END[0];
 						thisBar.style.transform = "rotate(180deg)"; 
 					} else {
-						thisBar.src = this.GRID_RESOURCES[1];
+						thisBar.src = this.RESOURCES.GRID.HORIZONTAL.MID[0];
 					}
 
 					if (j != 0) {
@@ -249,11 +266,13 @@ function Board(game) {
 
 function Game() {
 	this.board = null;
+	this.playerSelect = null;
 	this.WIN_LENGTH = 3;
 	this.whoWon = 0;
 	this.numberOfMoves = 0;
 	// -1 for idle, 0 for game End, 1 and 2 for players
 	this.currentState = -1;
+	this.players = [null, null];
 
 	// Hope this goes away with css....
 	this.toggleDivsDueToState = function() {
@@ -272,7 +291,7 @@ function Game() {
 	    	case 1:
 	    	case 2:
 	    		hideByIds(['startGameControls', 'gameEnd']);
-			    el("playerIcon").src = this.board.TIC_RESOURCES[this.currentState];
+			    el("playerIcon").src = this.board.RESOURCES.TICS[this.currentState][0];
 	    		showByIds(['playerControls', 'playerTurn', 'inGameControls']);
 	    		break;
 	    	default:
@@ -343,14 +362,66 @@ function Game() {
 	};
 
 	this.init = function() {
+		for (var i = 0; i < this.players.length; i++) {
+			if (this.players.length == null) {
+				// Deu pau
+				return;
+			}
+		}
 		this.board = new Board(this);
+		// this.playerSelect = new PlayerSelect(this);
 		this.board.resetBoard();
 		this.toggleDivsDueToState();
 	};
+
+	this.selectedPlayer = function(playerIndex, type) {
+		this.players[playerIndex] = type;
+	};
 };
 
+function PlayerSelect(game) {
+	this.nodes = [];
+	this.NUM_NODES = 0;
+	this.game = game;
+	this.mugs = [];
+	this.players = [null, null];
+
+	this.selectedPlayer = function (player, type) {
+		// console.log(this.mugs)
+		// Does this make it faster?
+		// Like... even super marginally...?
+		// ....probably not
+		if (this.players[player - 1] == type) {
+			return;
+		}
+		this.mugs[player - 1].src = "images/mugshots/" + type + "_mug.png";
+		this.players[player - 1] = type;
+		this.game.selectedPlayer(player - 1, type);
+	}
+
+	this.toggleSelect = function(isShow) {
+
+		var disp = isShow ? "block" : "none";
+		for (var i = 0; i < this.NUM_NODES; i++) {
+			nodes[i].style.display = disp;
+		}
+	};
+
+	this.init = function() {
+		this.nodes = document.getElementsByClassName("playerSelect");
+		this.NUM_NODES = this.nodes.length;
+		this.mugs = [el("player1Mug"), el("player2Mug")];
+		this.selectedPlayer(1, 'human');
+		this.selectedPlayer(2, 'human');
+		
+	};
+
+}
 game = new Game();
-game.init()
+playerSelect = new PlayerSelect(game);
+game.init();
+playerSelect.init();
+
 
 
 

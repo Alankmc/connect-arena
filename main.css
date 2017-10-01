@@ -1,3 +1,16 @@
 p, div, form, table, td, th, tr {
 	font-family:"Trebuchet MS";
 }
+
+#player1Tic {
+	content:url("images/x3.png");
+}
+
+#player2Tic {
+	content:url("images/o3.png");
+}
+
+.humanIcon {
+	content:url("images/icons/human_icon.png");
+}
+

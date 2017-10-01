@@ -13,8 +13,17 @@
 		<table allign="center" width="100%" border="0" border-collapse="collapse">
 			<tr>
 				<th>
-					<div>
-						<p> Image for the left guy </p>
+					<div id="player1">
+						<p> Player 1</p>
+						<img id="player1Tic"></img><br>
+						<img id="player1Mug" src="images/mugshots/blank.png"></img><br>
+						<br>
+						<div id="selectPlayer1" class="playerSelect">
+							Select Player<br>
+							<img class="humanIcon" onclick="playerSelect.selectedPlayer(1, 'human');"></img><br>
+							
+						</div>
+
 					</div>
 				</th>
 				<th>
@@ -31,8 +40,16 @@
 					</div>
 				</th>
 				<th>
-					<div>
-						<p> Image for the right guy </p>
+					<div id="player2">
+						<p> Player 2 </p>
+						<img id="player2Tic"></img><br>
+						<img id="player2Mug" style="transform:rotatey(180deg);" src="images/mugshots/blank.png"></img><br>
+						<br>
+						<div id="selectPlayer2" class="playerSelect">
+							Select Player<br>
+							<img class="humanIcon" onclick="playerSelect.selectedPlayer(2, 'human');"></img><br>
+							
+						</div>
 					</div>
 				</th>
 			</tr>
