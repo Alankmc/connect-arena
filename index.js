@@ -26,45 +26,51 @@ function getPositiveNum(str) {
 	return num;
 };
 
+// Global Params:
+RESOURCES = {
+	TICS: {
+		BLANK:"images/blank3.png", 
+		1:["images/x3.png"],
+		2:["images/o3.png"],
+	},
+	GRID: {
+		VERTICAL: {
+			MID: ["images/barMidV.png"],
+			END: ["images/barEndV.png"]
+		},
+		HORIZONTAL: {
+			END: ["images/barEndH.png"],	
+			MID: ["images/barMidH.png"]
+		},
+		
+		CROSS: ["images/cross.png"]
+	}
+};
+PLAYER_TIC = [1, 2];
+EMPTY_TIC = 0;
+
+
 /*
 	=================== BOARD =======================
 */
 
 function Board(game) {
 	this.BOARD_SIZE = [2, 2];
-	// Redo this shit
-	this.RESOURCES = {
-		TICS: {
-			BLANK:"images/blank3.png", 
-			1:["images/x3.png"],
-			2:["images/o3.png"],
-		},
-		GRID: {
-			VERTICAL: {
-				MID: ["images/barMidV.png"],
-				END: ["images/barEndV.png"]
-			},
-			HORIZONTAL: {
-				END: ["images/barEndH.png"],	
-				MID: ["images/barMidH.png"]
-			},
-			
-			CROSS: ["images/cross.png"]
-		}
-	};
-	
 	this.board = [];
 	this.boardElement = document.getElementById("boardDiv");
-	this.PLAYER_TIC = [1, 2];
-	this.EMPTY_TIC = 0;
 	this.numFilled = 0;
 	this.game = game;
+	
+	// Are you having fun, or are you getting board?
+	this.getBoard = function () {
+		return this.board;
+	}
 
 	this.insertTic = function(player, row, col) {
 		this.board[row][col] = player;
 		var tic = el("boardCell_" + row + "_" + col);
 
-		tic.src = this.RESOURCES.TICS[player][0];
+		tic.src = RESOURCES.TICS[player][0];
 		
 		this.numFilled++;
 	};
@@ -84,27 +90,27 @@ function Board(game) {
 
 				if (i == 0) {
 					// First line, bar End must point upward
-					thisBar.src = this.RESOURCES.GRID.VERTICAL.END[0];
+					thisBar.src = RESOURCES.GRID.VERTICAL.END[0];
 				} else if ( i == this.BOARD_SIZE[0] - 1) {
 					// Last line, bar End must point downward
-					thisBar.src = this.RESOURCES.GRID.VERTICAL.END[0];
+					thisBar.src = RESOURCES.GRID.VERTICAL.END[0];
 					thisBar.style.transform = "rotate(180deg)"; 
 				} else {
 					// Middle
-					thisBar.src = this.RESOURCES.GRID.VERTICAL.MID[0];
+					thisBar.src = RESOURCES.GRID.VERTICAL.MID[0];
 				}
 				// Tic Image
 				var newImg = document.createElement("img");
 				
 				newImg.id = "boardCell_"+i+"_"+j;
-				newImg.src = this.RESOURCES.TICS.BLANK;
+				newImg.src = RESOURCES.TICS.BLANK;
 				newImg.row = i;
 				newImg.col = j;
 				// Event listener that self defeats
 				newImg.addEventListener("click", function blankListener() {
 					// game.clickedCell(this.row, this.col);
 					game.clickedCell(this.row, this.col);
-					this.removeEventListener("click", blankListener);
+					removeEventListener("click", blankListener);
 				}, false);
 
 				// Append images. First, bar
@@ -120,15 +126,15 @@ function Board(game) {
 				for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
 					var thisBar = new Image();
 					var thisCross = new Image();
-					thisCross.src = this.RESOURCES.GRID.CROSS[0];
+					thisCross.src = RESOURCES.GRID.CROSS[0];
 
 					if (j == 0) {
-						thisBar.src = this.RESOURCES.GRID.HORIZONTAL.END[0];
+						thisBar.src = RESOURCES.GRID.HORIZONTAL.END[0];
 					} else if (j == this.BOARD_SIZE[1] - 1) {
-						thisBar.src = this.RESOURCES.GRID.HORIZONTAL.END[0];
+						thisBar.src = RESOURCES.GRID.HORIZONTAL.END[0];
 						thisBar.style.transform = "rotate(180deg)"; 
 					} else {
-						thisBar.src = this.RESOURCES.GRID.HORIZONTAL.MID[0];
+						thisBar.src = RESOURCES.GRID.HORIZONTAL.MID[0];
 					}
 
 					if (j != 0) {
@@ -151,7 +157,7 @@ function Board(game) {
 		var comboStart = 0;
 
 		for (var i = 0; i < line.length; i++) {
-			if (line[i] != this.EMPTY_TIC) {
+			if (line[i] != EMPTY_TIC) {
 				if (comboStart == 0) {
 					comboLength++;
 					comboStart = line[i];
@@ -252,7 +258,7 @@ function Board(game) {
 		for (var i = 0; i < numRows; i++) {
 			var newLine = [];
 			for (var j = 0; j < numCols; j++) {
-				newLine.push(this.EMPTY_TIC);
+				newLine.push(EMPTY_TIC);
 			}
 			this.board.push(newLine);
 		}
@@ -275,24 +281,32 @@ function Game() {
 	this.players = [null, null];
 
 	// Hope this goes away with css....
+
+	this.setPlayerSelect = function (playerSelect) {
+		this.playerSelect = playerSelect;
+	}
+
 	this.toggleDivsDueToState = function() {
 		switch(this.currentState) {
 	    	// idle
 	    	case -1:
 	    		hideByIds(['playerTurn', 'gameEnd', 'playerControls', 'inGameControls']);
 	    		showByIds(['startGameControls']);
+	    		this.playerSelect.toggleSelect(true);
 	    		break;
 	    	// Game end
 	    	case 0:
 	    		hideByIds(['playerTurn', 'playerControls', 'inGameControls']);
 	    		showByIds(['startGameControls', 'gameEnd']);
+	    		this.playerSelect.toggleSelect(true);
 	    		break;
     		// Player 1
 	    	case 1:
 	    	case 2:
 	    		hideByIds(['startGameControls', 'gameEnd']);
-			    el("playerIcon").src = this.board.RESOURCES.TICS[this.currentState][0];
+			    el("playerIcon").src = RESOURCES.TICS[this.currentState][0];
 	    		showByIds(['playerControls', 'playerTurn', 'inGameControls']);
+	    		this,playerSelect.toggleSelect(false);
 	    		break;
 	    	default:
 	    		break;
@@ -300,13 +314,12 @@ function Game() {
 	};
 
 	this.playerMove = function(player, row, col) {
-		
 		this.numberOfMoves++;
 		this.board.insertTic(player, row, col);
 		// this.board[row][col] = this.PLAYER_TIC[player - 1];
 
 		var wonYet = this.board.lookForEnd(this.WIN_LENGTH);
-		console.log("== END! " + wonYet)
+		// console.log("== END! " + wonYet)
 		if (wonYet >= 0) {
 			if (wonYet == 0) {
 	    		el('gameEnd').innerHTML = "TIE!";
@@ -327,10 +340,12 @@ function Game() {
 	};
 
 	this.clickedCell = function(row, col) {
-
-		if (this.currentState == 0 || this.currentState == -1) {
+		if (this.currentState == 0 || this.currentState == -1 || 
+			// It's not your damn turn boy, sit down
+			this.players[this.currentState - 1] != 'human') {
 			return;
 		}
+
 		this.playerMove(this.currentState, row, col);
 	};
 
@@ -352,10 +367,11 @@ function Game() {
 		
 		this.currentState = Math.floor(Math.random() * 2) + 1
 		this.numberOfMoves = 0;
+
 		this.toggleDivsDueToState();
 	};
 
-	this.resetGame = function() {
+	resetGame = function() {
 		this.board.resetBoard();
 		this.currentState = -1;
 		this.toggleDivsDueToState();
@@ -373,11 +389,13 @@ function Game() {
 		this.board.resetBoard();
 		this.toggleDivsDueToState();
 	};
-
+	
 	this.selectedPlayer = function(playerIndex, type) {
 		this.players[playerIndex] = type;
 	};
 };
+
+/* ================ PLAYER SELECT ==================== */
 
 function PlayerSelect(game) {
 	this.nodes = [];
@@ -403,7 +421,7 @@ function PlayerSelect(game) {
 
 		var disp = isShow ? "block" : "none";
 		for (var i = 0; i < this.NUM_NODES; i++) {
-			nodes[i].style.display = disp;
+			this.nodes[i].style.display = disp;
 		}
 	};
 
@@ -415,11 +433,22 @@ function PlayerSelect(game) {
 		this.selectedPlayer(2, 'human');
 		
 	};
+};
 
-}
+function Robot(game, botType) {
+	this.game = game;
+	this.botType = botType;
+	this.DELAY = 
+	this.move = function (board) {
+
+		return coordinate;
+	};
+};
+
 game = new Game();
 playerSelect = new PlayerSelect(game);
-game.init();
+game.setPlayerSelect(playerSelect);
+game.init(playerSelect);
 playerSelect.init();
 
 
