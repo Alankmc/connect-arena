@@ -269,7 +269,6 @@ function Board(game) {
 
 /* ===================== GAME ===================== */
 
-
 function Game() {
 	this.board = null;
 	this.playerSelect = null;
@@ -278,9 +277,9 @@ function Game() {
 	this.numberOfMoves = 0;
 	// -1 for idle, 0 for game End, 1 and 2 for players
 	this.currentState = -1;
-	this.players = [null, null];
-
-	// Hope this goes away with css....
+	this.playerTypes = [null, null];
+	this.robots = [null, null]
+	this.robotMaker = null;
 
 	this.setPlayerSelect = function (playerSelect) {
 		this.playerSelect = playerSelect;
@@ -313,6 +312,21 @@ function Game() {
 	    }
 	};
 
+	
+	this.nextMove = function() {
+		var robotChoice;
+		while (this.currentState == 1 || this.currentState == 2) {
+			// it's a human. simply wait for the human to click something.
+			if (playerTypes[currentState - 1] == 'human') {
+				break;
+			}
+			// It's a robot. Make a move.
+			robotChoice = this.robots[currentState - 1].makeMove(this.board.getBoard());
+			this.playerMove(robotChoice);
+		}
+	}
+	
+
 	this.playerMove = function(player, row, col) {
 		this.numberOfMoves++;
 		this.board.insertTic(player, row, col);
@@ -334,6 +348,7 @@ function Game() {
 			} else {
 				this.currentState = 1;
 			}
+			this.nextMove();
 		}
 		// this.drawBoard();
 		this.toggleDivsDueToState();
@@ -342,7 +357,7 @@ function Game() {
 	this.clickedCell = function(row, col) {
 		if (this.currentState == 0 || this.currentState == -1 || 
 			// It's not your damn turn boy, sit down
-			this.players[this.currentState - 1] != 'human') {
+			this.playerTypes[this.currentState - 1] != 'human') {
 			return;
 		}
 
@@ -365,33 +380,43 @@ function Game() {
 		}
 		hideByIds(["wrongParams"]);
 		
+		// Make robots
+		for (var i = 0; i < this.playerTypes.length; i++) {
+			if (this.playerTypes[i] == 'human') {
+				this.robots[i] = null;
+			} else {
+				this.robots[i] = this.robotMaker(playerTypes[i]);
+			}
+		}
+
 		this.currentState = Math.floor(Math.random() * 2) + 1
 		this.numberOfMoves = 0;
 
 		this.toggleDivsDueToState();
 	};
 
-	resetGame = function() {
+	this.resetGame = function() {
 		this.board.resetBoard();
 		this.currentState = -1;
 		this.toggleDivsDueToState();
 	};
 
 	this.init = function() {
-		for (var i = 0; i < this.players.length; i++) {
-			if (this.players.length == null) {
+		for (var i = 0; i < this.playerTypes.length; i++) {
+			if (this.playerTypes.length == null) {
 				// Deu pau
 				return;
 			}
 		}
 		this.board = new Board(this);
+		this.robotMaker = new RobotMaker(this);
 		// this.playerSelect = new PlayerSelect(this);
 		this.board.resetBoard();
 		this.toggleDivsDueToState();
 	};
 	
 	this.selectedPlayer = function(playerIndex, type) {
-		this.players[playerIndex] = type;
+		this.playerTypes[playerIndex] = type;
 	};
 };
 
@@ -402,18 +427,18 @@ function PlayerSelect(game) {
 	this.NUM_NODES = 0;
 	this.game = game;
 	this.mugs = [];
-	this.players = [null, null];
+	this.playerTypes = [null, null];
 
 	this.selectedPlayer = function (player, type) {
 		// console.log(this.mugs)
 		// Does this make it faster?
 		// Like... even super marginally...?
 		// ....probably not
-		if (this.players[player - 1] == type) {
+		if (this.playerTypes[player - 1] == type) {
 			return;
 		}
 		this.mugs[player - 1].src = "images/mugshots/" + type + "_mug.png";
-		this.players[player - 1] = type;
+		this.playerTypes[player - 1] = type;
 		this.game.selectedPlayer(player - 1, type);
 	}
 
@@ -435,18 +460,71 @@ function PlayerSelect(game) {
 	};
 };
 
-function Robot(game, botType) {
+/* ================= ROBOT MAKER ===================== */
+
+function RobotMaker(game) {
+	this.move;
+	this.game = game;
+
+	this.getEmpties = function (board) {
+		var emptyCells = [];
+		for (var i = 0; i < board.length; i++) {
+			for (var j = 0; j < board[0].length; j++) {
+				if (board[i][j] == 0) {
+					emptyCells.push([i, j]);
+				}
+			}
+		}
+
+		return emptyCells;
+	}
+
+	this.randomMove = function (heyy) {
+		/*
+		var emptyCells = getEmpties(board);
+		var pickCoordinate = Math.floor((emptyCells.length * Math.random()));
+
+		return emptyCells[pickCoordinate];
+		*/
+		console.log(heyy)
+	}
+
+	this.make = function(botType) {
+		var newBot = null;
+
+		switch(botType) {
+			case 'random':
+				newBot = new Robot(game, 'random', this.randomMove);
+				break;
+			default:
+				break;
+		}
+
+		return newBot;
+	}
+
+}
+
+/* ===================== ROBOT ================== */
+
+function Robot(game, botType, makeMoveCallback) {
 	this.game = game;
 	this.botType = botType;
-	this.DELAY = 
-	this.move = function (board) {
+	this.DELAY = 500;
+	this.makeMoveCallback = makeMoveCallback;
 
-		return coordinate;
-	};
+	this.makeMove = function () {
+		setTimeout(this.makeMoveCallback, this.DELAY);
+		// this.makeMoveCallback();
+	}
 };
 
+
+
+/* ================== Global Init ================= */
 game = new Game();
 playerSelect = new PlayerSelect(game);
+// rm = new RobotMaker(game);
 game.setPlayerSelect(playerSelect);
 game.init(playerSelect);
 playerSelect.init();
@@ -454,6 +532,29 @@ playerSelect.init();
 
 
 
+/* -------------- Test ----------------- */
+
+/*
+function A() {
+
+	this.methodA = function () {
+		alert("wazup");
+	};
+	this.makeB = function() {
+		var newB = new B(this.methodA);
+		return newB;
+	};
+}
+
+function B(callback) {
+	this.callback = callback;
+}
+
+
+var A = new A();
+var haha = A.makeB();
+haha.callback();
+*/
 
 
 
