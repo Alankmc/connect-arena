@@ -313,17 +313,23 @@ function Game() {
 	};
 
 	
-	this.nextMove = function() {
+	// Will begin looping through the game until it ends, in case there are only robots.
+	// If there's a human, it will be cut short.
+	this.signalNextMove = function() {
 		var robotChoice;
+		
 		while (this.currentState == 1 || this.currentState == 2) {
-			// it's a human. simply wait for the human to click something.
-			if (playerTypes[currentState - 1] == 'human') {
+
+			if (this.playerTypes[this.currentState - 1] == 'human') {
+				// it's a human. simply wait for the human to click something.
 				break;
 			}
 			// It's a robot. Make a move.
-			robotChoice = this.robots[currentState - 1].makeMove(this.board.getBoard());
-			this.playerMove(robotChoice);
+			robotChoice = this.robots[this.currentState - 1].makeMove(this.board.getBoard());
+			this.playerMove(this.currentState, robotChoice[0], robotChoice[1]);
 		}
+
+		return;
 	}
 	
 
@@ -348,7 +354,8 @@ function Game() {
 			} else {
 				this.currentState = 1;
 			}
-			this.nextMove();
+			// if ()
+			// this.signalNextMove();
 		}
 		// this.drawBoard();
 		this.toggleDivsDueToState();
@@ -362,6 +369,7 @@ function Game() {
 		}
 
 		this.playerMove(this.currentState, row, col);
+		this.signalNextMove();
 	};
 
 
@@ -385,7 +393,7 @@ function Game() {
 			if (this.playerTypes[i] == 'human') {
 				this.robots[i] = null;
 			} else {
-				this.robots[i] = this.robotMaker(playerTypes[i]);
+				this.robots[i] = this.robotMaker.make(this.playerTypes[i]);
 			}
 		}
 
@@ -393,6 +401,7 @@ function Game() {
 		this.numberOfMoves = 0;
 
 		this.toggleDivsDueToState();
+		this.signalNextMove();
 	};
 
 	this.resetGame = function() {
@@ -466,27 +475,17 @@ function RobotMaker(game) {
 	this.move;
 	this.game = game;
 
-	this.getEmpties = function (board) {
-		var emptyCells = [];
-		for (var i = 0; i < board.length; i++) {
-			for (var j = 0; j < board[0].length; j++) {
-				if (board[i][j] == 0) {
-					emptyCells.push([i, j]);
-				}
-			}
-		}
-
-		return emptyCells;
-	}
-
-	this.randomMove = function (heyy) {
-		/*
-		var emptyCells = getEmpties(board);
+	this.randomMove = function (board) {
+		console.log("> Random robot move");
+		console.log(this)
+		// Hopefully, getEmpties is in the robot. This smells like bad code though.
+		var emptyCells = this.getEmpties(board);
 		var pickCoordinate = Math.floor((emptyCells.length * Math.random()));
 
+		console.log("robot picked " + emptyCells[pickCoordinate]);
 		return emptyCells[pickCoordinate];
-		*/
-		console.log(heyy)
+		
+		// console.log(heyy)
 	}
 
 	this.make = function(botType) {
@@ -510,12 +509,27 @@ function RobotMaker(game) {
 function Robot(game, botType, makeMoveCallback) {
 	this.game = game;
 	this.botType = botType;
-	this.DELAY = 500;
+	this.DELAY = 1000;
 	this.makeMoveCallback = makeMoveCallback;
 
-	this.makeMove = function () {
-		setTimeout(this.makeMoveCallback, this.DELAY);
-		// this.makeMoveCallback();
+	this.getEmpties = function (board) {
+		var emptyCells = [];
+		for (var i = 0; i < board.length; i++) {
+			for (var j = 0; j < board[0].length; j++) {
+				if (board[i][j] == 0) {
+					emptyCells.push([i, j]);
+				}
+			}
+		}
+
+		return emptyCells;
+	}
+
+	this.makeMove = function (board) {
+		console.log("Robot's makin a move");
+		// console.log(this)
+		// setTimeout(this.makeMoveCallback, this.DELAY);
+		return this.makeMoveCallback(board);
 	}
 };
 
@@ -528,8 +542,6 @@ playerSelect = new PlayerSelect(game);
 game.setPlayerSelect(playerSelect);
 game.init(playerSelect);
 playerSelect.init();
-
-
 
 
 /* -------------- Test ----------------- */

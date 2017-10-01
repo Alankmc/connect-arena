@@ -14,3 +14,6 @@ p, div, form, table, td, th, tr {
 	content:url("images/icons/human_icon.png");
 }
 
+.randomIcon{
+	content:url("http://via.placeholder.com/60x60");
+}
