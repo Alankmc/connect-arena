@@ -1,63 +1,115 @@
-
 function Game() {
-	this.BOARD_SIZE = [1, 1];
+	this.BOARD_SIZE = [2, 2];
 	this.WIN_LENGTH = 3;
-	this.PLAYER_TIC = ["x" ,"o"];
-	this.EMPTY_TIC = " ";
+	this.PLAYER_TIC = [1, 2];
+	this.EMPTY_TIC = 0;
+	this.TIC_RESOURCES = ["images/blank3.png", "images/x3.png", "images/o3.png"];
+	this.GRID_RESOURCES = ["images/barEndH.png", "images/barMidH.png", "images/barEndV.png", "images/barMidV.png", "images/cross.png"]
 	this.board = [];
 	this.boardString = " ";
 	// 0 for tie, 1 for player 1, 2 for player 2
 	this.whoWon = 0;
-
 	this.numberOfMoves = 0;
 	// -1 for idle, 0 for game End, 1 and 2 for players
 	this.currentState = -1;
+	this.boardElement = document.getElementById("boardDiv");
 
-	this.drawBoard = function() {
-		var str = "    ";
-		var colIndex = 1;
-		var lineIndex = 1;
-		for (var i = 0; i < this.BOARD_SIZE[1]; i++) {
-			if (colIndex < 10) {
-				str += " " + colIndex + "  ";
-			} else {
-				str += colIndex + "  ";	
-			}
-			colIndex++;
-		}
-		str += "\n";
-		str += "    ";
-		for (var i = 0; i < this.BOARD_SIZE[0]; i++) {
-			for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
-				str += "--- ";
-			}
-			str += "\n";
-			if (lineIndex < 10) {
-				str += "  " + lineIndex + " ";
-			} else {
-				str += " " + lineIndex + " ";
-			}
-			lineIndex++;
-			str += "| "
-			for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
-				str += this.board[i][j] + " | ";
-			}
-			str += "\n"
-			str += "    ";
-			
-		}
-		for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
-			str += "--- ";
-		}
-		str += "\n";
-		str += "    ";
-
-		this.boardString = str;
-	    document.getElementById('boardString').innerHTML = str;
+	// el as in "element"
+	this.el = function(str) {
+		return document.getElementById(str);
 	};
 
-	this.nextChar = function(c) {
-	    return String.fromCharCode(c.charCodeAt(0) + 1);
+	this.drawTic = function(player, row, col) {
+		var tic = this.el("boardCell_" + row + "_" + col);
+
+		tic.src = this.TIC_RESOURCES[player];
+		tic.onclick = null;
+	};
+	
+
+	this.clickedCell = function(row, col) {
+
+		if (this.currentState == 0 || this.currentState == -1) {
+			return;
+		}
+
+		// alert("Clicked " + row + ", " + col);
+		this.drawTic(this.currentState, row, col);
+		this.playerMove(this.currentState, row, col);
+
+	};
+
+	this.createBoardNodes = function() {
+		var game = this;
+
+		var boardDiv = document.createElement("div");
+		boardDiv.id = "boardDiv";
+		boardDiv.style["line-height"] = 0;
+
+		for (var i = 0; i < this.BOARD_SIZE[0]; i++) {
+			for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
+				var thisBar = new Image();
+
+				if (i == 0) {
+					// First line, bar End must point upward
+					thisBar.src = this.GRID_RESOURCES[2];
+				} else if ( i == this.BOARD_SIZE[0] - 1) {
+					// Last line, bar End must point downward
+					thisBar.src = this.GRID_RESOURCES[2];
+					thisBar.style.transform = "rotate(180deg)"; 
+				} else {
+					// Middle
+					thisBar.src = this.GRID_RESOURCES[3];
+				}
+
+				// Tic Image
+				var newImg = document.createElement("img");
+				
+				newImg.id = "boardCell_"+i+"_"+j;
+				newImg.src = this.TIC_RESOURCES[0];
+				newImg.row = i;
+				newImg.col = j;
+				// Event listener that self defeats
+				newImg.addEventListener("click", function blankListener() {
+					game.clickedCell(this.row, this.col);
+					this.removeEventListener("click", blankListener);
+				}, false);
+
+				// Append images. First, bar
+				if (j != 0) {
+					boardDiv.appendChild(thisBar);
+				}
+				boardDiv.appendChild(newImg);
+			}
+
+			// Now, make horizontal bars
+			if (i != this.BOARD_SIZE[0] - 1) {
+				boardDiv.appendChild(document.createElement("br"));
+				for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
+					var thisBar = new Image();
+					var thisCross = new Image();
+					thisCross.src = this.GRID_RESOURCES[4];
+
+					if (j == 0) {
+						thisBar.src = this.GRID_RESOURCES[0];
+					} else if (j == this.BOARD_SIZE[1] - 1) {
+						thisBar.src = this.GRID_RESOURCES[0];
+						thisBar.style.transform = "rotate(180deg)"; 
+					} else {
+						thisBar.src = this.GRID_RESOURCES[1];
+					}
+
+					if (j != 0) {
+						boardDiv.appendChild(thisCross);
+					}
+					boardDiv.appendChild(thisBar);
+				}
+			}
+			boardDiv.appendChild(document.createElement("br"));
+		}
+
+		this.el("boardCell").replaceChild(boardDiv, this.boardElement);
+		this.boardElement = boardDiv;
 	};
 
 	this.hideByIds = function(ids) {
@@ -72,7 +124,6 @@ function Game() {
 		}
 	};
 
-
 	this.toggleDivsDueToState = function() {
 		switch(this.currentState) {
 	    	// idle
@@ -85,18 +136,12 @@ function Game() {
 	    		this.hideByIds(['playerTurn', 'playerControls', 'inGameControls']);
 	    		this.showByIds(['startGameControls', 'gameEnd']);
 	    		break;
+    		// Player 1
 	    	case 1:
-	    		this.hideByIds(['startGameControls', 'gameEnd']);
-			    document.getElementById('playerTurn').innerHTML = "PLAYER 1 turn";
-
-	    		this.showByIds(['playerControls', 'playerTurn', 'inGameControls']);
-
-	    		break;
 	    	case 2:
 	    		this.hideByIds(['startGameControls', 'gameEnd']);
-	    		document.getElementById('playerTurn').innerHTML = "PLAYER 2 turn";
-				this.showByIds(['playerControls', 'playerTurn', 'inGameControls']);
-
+			    this.el("playerIcon").src = this.TIC_RESOURCES[this.currentState];
+	    		this.showByIds(['playerControls', 'playerTurn', 'inGameControls']);
 	    		break;
 	    	default:
 	    		break;
@@ -111,25 +156,28 @@ function Game() {
 
 	this.checkLine = function(line) {
 		console.log("Checking Line " + line)
-		var combo = 0;
-		var comboStart = null;
+		var comboLength = 0;
+		var comboStart = 0;
 
 		for (var i = 0; i < line.length; i++) {
 			if (line[i] != this.EMPTY_TIC) {
 				if (comboStart == 0) {
-					combo++;
-					comboStart = time[i];
+					comboLength++;
+					comboStart = line[i];
 				} else {
 					if (line[i] == comboStart) {
-						combo++;
-						if (combo >= this.WIN_LENGTH) {
+						comboLength++;
+						if (comboLength >= this.WIN_LENGTH) {
 							return true;
 						}
 					} else {
-						combo = 1;
+						comboLength = 1;
 						comboStart = line[i];
 					}
 				}
+			} else {
+				comboStart = 0;
+				comboLength = 0;
 			}
 		}
 
@@ -138,9 +186,8 @@ function Game() {
 
 	// Goes down a cell from the upper right or upper left (evidenced by isForward),
 	// and builds a line out of the diagonal
-	
 	this.buildDiagonal = function(row, col, isForward) {
-		console.log("Building diagonal for " + row + ", " + col + ", " + isForward);
+		// console.log("Building diagonal for " + row + ", " + col + ", " + isForward);
 		var line = [];
 		var bump = isForward ? 1 : -1;
 		
@@ -158,15 +205,26 @@ function Game() {
 		var col;
 
 		// Looks for lines
+		// Vertical
 		for (var i = 0; i < this.BOARD_SIZE[0]; i++) {
-			col = [];
-			for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
-				col.push(this.board[i][j]);
-			}
-			// Vertical and Horizontal
-			if (this.checkLine(col) || this.checkLine(this.board[i])) {
+			
+			if (this.checkLine(this.board[i])) {
 				this.whoWon = this.currentState;
-				// this.currentState = 0;
+				
+				return true;
+			}
+		}
+
+		// Horizontal
+		for (var i = 0; i < this.BOARD_SIZE[1]; i++) {
+			col = [];
+			for (var j = 0; j< this.BOARD_SIZE[0]; j++) {
+				col.push(this.board[j][i]);	
+			}
+			
+			if (this.checkLine(col)) {
+				this.whoWon = this.currentState;
+				
 				return true;
 			}
 		}
@@ -201,7 +259,6 @@ function Game() {
 		return false;
 	};
 
-/* ----------------------------------------*/
 	this.playerMove = function(player, row, col) {
 		
 		this.numberOfMoves++;
@@ -220,7 +277,7 @@ function Game() {
 				this.currentState = 1;
 			}
 		}
-		this.drawBoard();
+		// this.drawBoard();
 		this.toggleDivsDueToState();
 	};
 
@@ -232,34 +289,6 @@ function Game() {
 			return -1;
 		}
 		return num;
-	};
-
-	this.playerPutInCoords = function() {
-	    var row = document.getElementById('playerInputRow').value;
-	    var col = document.getElementById('playerInputCol').value;
-	    row = this.getPositiveNum(row);
-	    col = this.getPositiveNum(col);
-	    // console.log(row)
-	    // console.log(col)
-	    // console.log(row)
-
-	    // Indexing starts with 0! Decrement
-	    row--;
-	    col--;
-
-	    if ( row < 0 || col < 0 || row >= this.BOARD_SIZE[0] || col >= this.BOARD_SIZE[1]) {
-    		this.showByIds(['wrongCoords']);
-	    	return;
-	    }
-
-		if (this.board[row][col] != this.EMPTY_TIC) {
-			// console.log("here")
-			this.showByIds(['wrongCoords']);
-	    	return;	
-		}
-
-		this.hideByIds(['wrongCoords']);
-		this.playerMove(this.currentState, row, col);
 	};
 
 	this.newGame = function() {
@@ -299,7 +328,7 @@ function Game() {
 		}
 
 		// Make empty board
-		this.drawBoard();
+		this.createBoardNodes();
 	};
 
 	this.init = function() {
