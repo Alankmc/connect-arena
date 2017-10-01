@@ -1,3 +1,8 @@
+/*
+	Connect Arena code, done as a fun, personal project.
+	Credits to Alan Cavalcant (alankmc) - 2017
+*/
+
 // =================== HELPER FUNCTIONS =================
 // el as in "element"
 function el(str) {
@@ -496,6 +501,9 @@ function RobotMaker(game) {
 	this.move;
 	this.game = game;
 
+	this.rockMove = function() {
+	};
+
 	this.randomMove = function (board) {
 		// // console.log("> Random robot move");
 		// // console.log(this)
@@ -507,7 +515,7 @@ function RobotMaker(game) {
 		return emptyCells[pickCoordinate];
 		
 		// // console.log(heyy)
-	}
+	};
 
 	this.make = function(botType) {
 		var newBot = null;
@@ -521,7 +529,7 @@ function RobotMaker(game) {
 		}
 
 		return newBot;
-	}
+	};
 
 }
 
