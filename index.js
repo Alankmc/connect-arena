@@ -52,6 +52,40 @@ function hidePlayerExplanation() {
 	el("explainPlayer").innerHTML = "";
 };
 
+function removeElement(arr, el) {
+	const index = arr.indexOf(el);
+
+	if (index !== -1) {
+		arr.splice(index, 1);
+	}
+};
+
+function removeDoubleElement(arr, el) {
+	var found = false;
+	for (var i = 0; i < arr.length; i++) {
+		if (arr[i][0] == el[0] && arr[i][1] == el[1]) {
+			found = true;
+			break;
+		}
+	}
+	if (found) {
+		arr.splice(i, 1);
+	}
+};
+
+function getMatrixMax(arr) {
+	var max = -10;
+	for (var i = 0; i < arr.length; i++) {
+		for (var j = 0; j < arr[0].length;j++) {
+			if (arr[i][j] > max) {
+				max = arr[i][j];
+			}
+		}
+	}
+	
+	return max;
+}
+
 // Global Params:
 RESOURCES = {
 	TICS: {
@@ -78,26 +112,120 @@ EMPTY_TIC = 0;
 
 /*
 	=================== BOARD =======================
-	*/
+*/
 
-	function Board(game) {
-		this.BOARD_SIZE = [2, 2];
-		this.board = [];
-		this.boardElement = document.getElementById("boardDiv");
-		this.numFilled = 0;
-		this.game = game;
+function Board(game) {
+	this.BOARD_SIZE = [2, 2];
+	this.board = [];
+	this.boardElement = document.getElementById("boardDiv");
+	this.numFilled = 0;
+	this.game = game;
+
+	/* Helpful Structures */
+	// Contains all the empty cells
+	// Simply a list of doubles [[0,0], [1,0], [2,0], ...] that are 
+	// removed every time there's a move
+	this.emptyCells = [];
+	this.maxDangers = [];
+	this.dangerMatrices = [];
 
 	// Are you having fun, or are you getting board?
 	this.getBoard = function () {
 		return this.board;
 	}
 
+	this.getEmpties = function () {
+		return this.emptyCells;
+	}
+
+	this.getThis = function() {
+		return this;
+	}
+
 	this.insertTic = function(player, row, col) {
+		const winLength = this.game.getWinLength();
 		this.board[row][col] = player;
 		var tic = el("boardCell_" + row + "_" + col);
 
 		tic.src = RESOURCES.TICS[player][0];
 		
+		/*** Empty Cells ***/
+		removeDoubleElement(this.emptyCells, [row, col]);
+
+		/*** Danger Matrices ***/
+		const ownIndex = player - 1;
+		const opIndex = (player) % 2;
+		
+		var ownMatrices = this.dangerMatrices[ownIndex];
+		var opponentMatrices = this.dangerMatrices[opIndex];
+		// Neutralize dangers when in own matrix
+		// Increment danger in opponent matrix
+		// Horizontal
+		for (i = col - winLength + 1; i <= col; i++) {
+			if (i < 0) {
+				continue;
+			}
+			if (i > this.BOARD_SIZE[1] - winLength) {
+				break;
+			}
+			
+			if (opponentMatrices[0][row][i] != -1) {
+				opponentMatrices[0][row][i] += 1;
+			}
+
+			ownMatrices[0][row][i] = -1;
+		}
+		// Vertical
+		for (i = row - winLength + 1; i <= row; i++) {
+			if (i < 0) {
+				continue;
+			}
+			if (i > this.BOARD_SIZE[0] - winLength) {
+				break;
+			}
+			if (opponentMatrices[1][i][col] != -1) {
+				opponentMatrices[1][i][col] += 1;
+			}
+			ownMatrices[1][i][col] = -1;
+		}
+		// Diagonal down-right
+		var j = col - winLength;
+		for (i = row - winLength + 1; i <= row; i++) {
+			j++;
+			if (i < 0 || j < 0) {
+				continue;
+			}
+			if (i > this.BOARD_SIZE[0] - winLength || 
+				j > this.BOARD_SIZE[1] - winLength ) {
+				break;
+			}
+			if (opponentMatrices[2][i][j] != -1) {
+				opponentMatrices[2][i][j] += 1;
+			}
+			ownMatrices[2][i][j] = -1;
+		}
+		// Diagonal left-down
+		j = col + winLength;
+		for (i = row - winLength + 1; i <= row; i++) {
+			j--;
+			if (i < 0 || j >= this.BOARD_SIZE[1]) {
+				continue;
+			}
+			if (i > this.BOARD_SIZE[0] - winLength || j < winLength - 1) {
+				break;
+			}
+			if (opponentMatrices[3][i][j - winLength + 1] != -1) {
+				opponentMatrices[3][i][j - winLength + 1] += 1;
+			}
+			ownMatrices[3][i][j - winLength + 1] = -1;
+		}
+		for (var i = 0; i < 4; i++) {
+			this.maxDangers[ownIndex][i] = getMatrixMax(ownMatrices[i]);
+			this.maxDangers[opIndex][i] = getMatrixMax(opponentMatrices[i]);	
+		}
+		// console.log("Dangers: ");
+		// console.log(this.dangerMatrices);
+		// console.log(this.maxDangers);
 		this.numFilled++;
 	};
 
@@ -176,100 +304,17 @@ EMPTY_TIC = 0;
 		this.boardElement = boardDiv;
 	};
 
-	// Returns the player number for who won, or -1 for not yet won
-	this.checkLine = function(line, winLength) {
-		// // console.log("Checking Line " + line + " for " + winLength);
-		var comboLength = 0;
-		var comboStart = 0;
-
-		for (var i = 0; i < line.length; i++) {
-			if (line[i] != EMPTY_TIC) {
-				if (comboStart == 0) {
-					comboLength++;
-					comboStart = line[i];
-				} else {
-					if (line[i] == comboStart) {
-						comboLength++;
-						if (comboLength >= winLength) {
-							return true;
-						}
-					} else {
-						comboLength = 1;
-						comboStart = line[i];
-					}
-				}
-			} else {
-				comboStart = 0;
-				comboLength = 0;
-			}
-		}
-
-		return false;
-	};
-
-	// Goes down a cell from the upper right or upper left (evidenced by isForward),
-	// and builds a line out of the diagonal
-	this.buildDiagonal = function(row, col, isForward) {
-		// // console.log("Building diagonal for " + row + ", " + col + ", " + isForward);
-		var line = [];
-		var bump = isForward ? 1 : -1;
-		
-		//for (var i = 0; i < this.BOARD_SIZE[0] - row; i++) {
-			while(row >= 0 && row < this.BOARD_SIZE[0] && col >= 0 && col < this.BOARD_SIZE[1]) {
-				line.push(this.board[row][col]);
-				row++;
-				col += bump;
-			}
-
-			return line;
-		};
-
 	// Returns the 1 for won, 0 for tie, -1 for not yet won
-	this.lookForEnd = function(winLength) {
-		var col;
-		// // console.log("Looking for win of: " + winLength);
-
-		// Looks for lines
-		// Vertical
-		for (var i = 0; i < this.BOARD_SIZE[0]; i++) {
-
-			// // console.log("wtf man this" + this.board[i].length);
-
-			if (this.checkLine(this.board[i], winLength)) {
-				return 1;
+	this.lookForEnd = function(winLength) {	
+		
+		for (var playerIndex = 0; playerIndex < 2; playerIndex++) {
+			for (var i = 0; i < 4; i++) {
+				if (this.maxDangers[playerIndex][i] >= this.game.getWinLength()) {
+					return playerIndex + 1;
+				}
 			}
 		}
 
-		// Horizontal
-		for (var i = 0; i < this.BOARD_SIZE[1]; i++) {
-			col = [];
-			for (var j = 0; j< this.BOARD_SIZE[0]; j++) {
-				col.push(this.board[j][i]);	
-			}
-			
-			if (this.checkLine(col, winLength)) {
-				return 1;
-			}
-		}
-
-		// Compare diagonals
-		// Build diagonals going down the vertical sides
-		for (var i = 0; i < this.BOARD_SIZE[0] - winLength + 1; i++) {
-			
-			if (this.checkLine(this.buildDiagonal(i, 0, true), winLength) || 
-				this.checkLine(this.buildDiagonal(i, this.BOARD_SIZE[1] - 1, false), winLength)) {
-				return 1;
-		}
-	}
-		// Build diagonals going down the horizontal sides
-		for (var i = 1; i < this.BOARD_SIZE[1] - winLength + 1; i++) {
-			if (this.checkLine(this.buildDiagonal(0, i, true), winLength) || 
-				this.checkLine(this.buildDiagonal(0, this.BOARD_SIZE[1] - 1 - i, false), winLength)) {
-				return 1;
-		}
-	}
-
-		// Check for tie (after everything, because someone might win at the very last move)
 		if (this.numFilled == this.BOARD_SIZE[0] * this.BOARD_SIZE[1]) {
 			return 0;
 		}
@@ -280,15 +325,48 @@ EMPTY_TIC = 0;
 	this.resetBoard = function(numRows = this.BOARD_SIZE[0], numCols = this.BOARD_SIZE[1]) {
 		this.board = [];
 		this.BOARD_SIZE = [numRows, numCols]
-		// console.log("Resetboard = " + this.BOARD_SIZE);
-		for (var i = 0; i < numRows; i++) {
-			var newLine = [];
-			for (var j = 0; j < numCols; j++) {
-				newLine.push(EMPTY_TIC);
+		this.emptyCells = [];
+		this.dangerMatrices = [];
+		this.maxDangers = [];
+		const winLength = this.game.getWinLength();
+		// For each player, make the danger matrices
+		for (var i = 0; i < 2; i++) {
+			this.maxDangers.push([0, 0, 0, 0]);
+			var thisPlayerDangerMatrices = [];
+			var dangerMatrix = [];
+			// Horizontal Windows
+			for (var j = 0; j < numRows; j++) {
+				dangerMatrix.push(new Array(numCols - winLength + 1).fill(0));
 			}
-			this.board.push(newLine);
+			thisPlayerDangerMatrices.push(dangerMatrix);
+			dangerMatrix = [];
+			// Vertical Windows
+			for (var j = 0; j < numRows - winLength + 1; j++) {
+				dangerMatrix.push(new Array(numCols).fill(0));
+			}
+			thisPlayerDangerMatrices.push(dangerMatrix);
+			// Diagonal Windows
+			for (var k = 0; k < 2; k++) {
+				dangerMatrix = [];
+				for (var j = 0; j < numRows - winLength + 1; j++) {
+					dangerMatrix.push(new Array(numCols - winLength + 1).fill(0));
+				}
+				thisPlayerDangerMatrices.push(dangerMatrix);
+			}
+			this.dangerMatrices.push(thisPlayerDangerMatrices);
 		}
 
+		
+		for (var i = 0; i < numRows; i++) {
+			// Fill board with zeros
+			this.board.push(new Array(numCols).fill(0));
+
+			// Make Empty Cells
+			for (var j = 0; j < numCols; j++) {
+				this.emptyCells.push([i, j]);
+			}
+		}
+		
 		this.createBoardNodes();
 	};
 }
@@ -306,6 +384,11 @@ function Game() {
 	this.playerTypes = [null, null];
 	this.robots = [null, null]
 	this.robotMaker = null;
+
+
+	this.getWinLength = function () {
+		return this.WIN_LENGTH;
+	}
 
 	this.setPlayerSelect = function (playerSelect) {
 		this.playerSelect = playerSelect;
@@ -351,7 +434,11 @@ function Game() {
 				break;
 			}
 			// It's a robot. Make a move.
-			robotChoice = this.robots[this.currentState - 1].makeMove(this.board.getBoard(), this.WIN_LENGTH);
+			robotChoice = this.robots[this.currentState - 1].makeMove(
+				this.board.getBoard(), 
+				this.board.getEmpties(), 
+				this.WIN_LENGTH);
+			// console.log(robotChoice)
 			this.playerMove(this.currentState, robotChoice[0], robotChoice[1]);
 		}
 
@@ -365,7 +452,7 @@ function Game() {
 		// this.board[row][col] = this.PLAYER_TIC[player - 1];
 
 		var wonYet = this.board.lookForEnd(this.WIN_LENGTH);
-		// // console.log("== END! " + wonYet)
+		// console.log("== END! " + wonYet)
 		if (wonYet >= 0) {
 			if (wonYet == 0) {
 				el('gameEnd').innerHTML = "TIE!";
@@ -392,14 +479,14 @@ function Game() {
 			// It's not your damn turn boy, sit down
 			this.playerTypes[this.currentState - 1] != 'human') {
 			return;
-	}
+		}
 
-	this.playerMove(this.currentState, row, col);
-	this.signalNextMove();
-};
+		this.playerMove(this.currentState, row, col);
+		this.signalNextMove();
+	};
 
 
-this.newGame = function() {
+	this.newGame = function() {
 		// Get Board sizes
 		var numRows = getPositiveNum(el('boardInputRows').value);
 		var numCols = getPositiveNum(el('boardInputCols').value);
@@ -465,7 +552,7 @@ function PlayerSelect(game) {
 	this.playerTypes = [null, null];
 
 	this.selectedPlayer = function (player, type) {
-		// // console.log(this.mugs)
+		// console.log(this.mugs)
 		// Does this make it faster?
 		// Like... even super marginally...?
 		// ....probably not
@@ -505,24 +592,21 @@ function RobotMaker(game) {
 	};
 
 	// Random simply put in tics in random places
-	this.randomMove = function (board, winLength) {
-		// // console.log("> Random robot move");
-		// // console.log(this)
-		// Hopefully, getEmpties is in the robot. This smells like bad code though.
-		var emptyCells = this.getEmpties(board);
-		var pickCoordinate = Math.floor((emptyCells.length * Math.random()));
-
-		// // console.log("robot picked " + emptyCells[pickCoordinate]);
-		return emptyCells[pickCoordinate];
+	this.randomMove = function (board, empties, winLength) {
+		// Random only uses the empties, and chooses one at random
+		var pickCoordinate = Math.floor((empties.length * Math.random()));
 		
-		// // console.log(heyy)
+		return empties[pickCoordinate];
 	};
 
-	// Soft Rock simply tries not to lose
-	this.softRockMove = function (board, winLength) {
-		// Finds the biggest enemy combo
+	// Scaredy cat tries not to lose
+	// Scaredy cat puts the tic right where there are more of the opponent's tics
+	this.scaredyCatMove = function (board, empties, winLength) {
+		
+	}
 
-		// 
+	this.copyCatMove = function (board, empties, winLength) {
+
 	}
 
 	this.make = function(botType, myState) {
@@ -551,127 +635,11 @@ function Robot(game, botType, makeMoveCallback, myState) {
 	this.myState = myState;
 	this.enemyState = (myState == 1) ? 2 : 1;
 
-	this.getEmpties = function (board) {
-		var emptyCells = [];
-		for (var i = 0; i < board.length; i++) {
-			for (var j = 0; j < board[0].length; j++) {
-				if (board[i][j] == 0) {
-					emptyCells.push([i, j]);
-				}
-			}
-		}
-
-		return emptyCells;
-	};
-
-	// Hm... I don't really like the sound of this, but let's see....
-	this.countLine = function(line, target) {
-		console.log("target" + target)
-		var currCombo = 0;
-		var maxCombo = 0;
-		var currStartCoord = 0;
-		var startCoords = [];
-
-		for (var i = 0; i < line.length; i++) {
-
-			if (line[i] == target) {
-				console.log("HIT")
-				if (currCombo == 0) {
-					currStartCoord = i;
-				}
-
-				currCombo++;
-			} else if (currCombo != 0) {
-				console.log("stop combo at " + i)
-				if (currCombo == maxCombo) {
-					startCoords.push([i - maxCombo]);
-				} else if (currCombo > maxCombo) {
-					maxCombo = currCombo;
-					startCoords = [i - maxCombo];
-					
-				}
-
-				currCombo = 0;
-			}
-		}
-
-		if (currCombo >= maxCombo && currCombo != 0) {
-			if (currCombo == maxCombo) {
-				// maxCombo = currCombo;
-				startCoords.push([line.length - maxCombo]);
-			} else if (currCombo > maxCombo) {
-				startCoords = [line.length - maxCombo];
-				maxCombo = currCombo;
-			}
-		}
-		console.log("MAX: " + maxCombo);
-		return {comboLen:maxCombo, start:startCoords};
-	};
-
-	this.findBiggestCombos = function(board, target) {
-		var h_size = board[0].length;
-		var v_size = board.length;
-		var biggestCoord = [null, null];
-		var biggestLength = [0, 0];
-		var currCombo = 0;
-		var currComboState = 0;
-		
-		// Horizontal
-		for (var i = 0; i < v_size; i++) {
-			var thisLine = this.countLine(board[i], target);
-
-			if (thisLine.comboLen != 0 && thisLine.comboLen >= biggestLength[0]) {
-
-				var toAppend = []
-				for (var j = 0; j < thisLine.start.length; j++) {
-					toAppend.push([i, thisLine.start[j]]);
-				}
-
-				if (thisLine.comboLen == biggestLength[0]) {
-					biggestCoord[0] = biggestCoord[0].concat(toAppend);
-				} else {
-					biggestLength[0] = thisLine.comboLen;
-					biggestCoord[0] = toAppend;
-				}
-			}
-		}
-
-		// Vertical
-		for (var i = 0; i < this.h_size; i++) {
-			col = [];
-			for (var j = 0; j< this.v_size; j++) {
-				col.push(this.board[j][i]);	
-			}
-			
-			var thisLine = this.countLine(col, target);
-			
-			if (thisLine.comboLen != 0 && thisLine.comboLen >= biggestLength[1]) {
-
-				var toAppend = []
-				for (var j = 0; j < thisLine.start.length; j++) {
-					toAppend.push([thisLine.start[j], i]);
-				}
-
-				if (thisLine.comboLen == biggestLength[1]) {
-					biggestCoord[1] = biggestCoord[1].concat(toAppend);
-				} else {
-					biggestLength[1] = thisLine.comboLen;
-					biggestCoord[1] = toAppend;
-				}
-			}	
-			
-		}
-
-		console.log(biggestLength);
-		console.log(biggestCoord);
-	};
-
-	this.makeMove = function (board, winLength) {
+	this.makeMove = function (board, empties, winLength) {
 		// console.log("Robot's makin a move");
-		// // console.log(this)
-		// setTimeout(this.makeMoveCallback, this.DELAY);
-		this.findBiggestCombos(board, this.enemyState);
-		return this.makeMoveCallback(board, winLength);
+		// console.log(this)
+		
+		return this.makeMoveCallback(board, empties, winLength);
 	};
 };
 
@@ -689,32 +657,15 @@ playerSelect.init();
 /* -------------- Test ----------------- */
 
 /*
-function A() {
+var obj = {hello: "hi"};
+var A = [];
+A.push(obj);
+obj = {hello: "sup"};
+A.push(obj);
 
-	this.methodA = function () {
-		alert("wazup");
-	};
-	this.makeB = function() {
-		var newB = new B(this.methodA);
-		return newB;
-	};
-}
+console.log(A);
 
-function B(callback) {
-	this.callback = callback;
-}
-
-
-var A = new A();
-var haha = A.makeB();
-haha.callback();
 */
-
-
-
-
-
-
 
 
 
