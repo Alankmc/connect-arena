@@ -434,11 +434,8 @@ function Game() {
 				break;
 			}
 			// It's a robot. Make a move.
-			robotChoice = this.robots[this.currentState - 1].makeMove(
-				this.board.getBoard(), 
-				this.board.getEmpties(), 
-				this.WIN_LENGTH);
-			// console.log(robotChoice)
+			robotChoice = this.robots[this.currentState - 1].makeMove(this.board.getThis());
+			
 			this.playerMove(this.currentState, robotChoice[0], robotChoice[1]);
 		}
 
@@ -588,26 +585,14 @@ function RobotMaker(game) {
 	this.move;
 	this.game = game;
 
-	this.rockMove = function() {
-	};
-
 	// Random simply put in tics in random places
-	this.randomMove = function (board, empties, winLength) {
-		// Random only uses the empties, and chooses one at random
+	this.randomMove = function (boardObj) {
+		var empties = boardObj.getEmpties();
+
 		var pickCoordinate = Math.floor((empties.length * Math.random()));
 		
 		return empties[pickCoordinate];
 	};
-
-	// Scaredy cat tries not to lose
-	// Scaredy cat puts the tic right where there are more of the opponent's tics
-	this.scaredyCatMove = function (board, empties, winLength) {
-		
-	}
-
-	this.copyCatMove = function (board, empties, winLength) {
-
-	}
 
 	this.make = function(botType, myState) {
 		var newBot = null;
@@ -635,37 +620,29 @@ function Robot(game, botType, makeMoveCallback, myState) {
 	this.myState = myState;
 	this.enemyState = (myState == 1) ? 2 : 1;
 
-	this.makeMove = function (board, empties, winLength) {
-		// console.log("Robot's makin a move");
-		// console.log(this)
+	this.makeMove = function (boardObj) {
 		
-		return this.makeMoveCallback(board, empties, winLength);
+		return this.makeMoveCallback(boardObj);
 	};
 };
-
-
 
 /* ================== Global Init ================= */
 game = new Game();
 playerSelect = new PlayerSelect(game);
-// rm = new RobotMaker(game);
 game.setPlayerSelect(playerSelect);
 game.init(playerSelect);
 playerSelect.init();
 
-
 /* -------------- Test ----------------- */
 
-/*
-var obj = {hello: "hi"};
-var A = [];
-A.push(obj);
-obj = {hello: "sup"};
-A.push(obj);
 
-console.log(A);
 
-*/
+
+
+
+
+
+
 
 
 
