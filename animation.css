@@ -1,0 +1,121 @@
+/* Animation... here goes */
+.flipTransform {
+  -webkit-transition: 0.2s;
+  -moz-transition: 0.2s;
+  -o-transition: 0.2s;
+  -ms-transition: 0.2s;
+  transition: 0.2s;
+}
+
+.fullFlipTransform {
+  -webkit-transition: 0.4s;
+  -moz-transition: 0.4s;
+  -o-transition: 0.4s;
+  -ms-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.fullFlipTransform-active {
+	transform: rotateY(360deg);
+	-webkit-transform: rotateY(360deg);
+	-ms-transform: rotateY(360deg);
+}
+
+/* 
+Very nice from:
+https://stackoverflow.com/questions/6410730/how-to-do-a-webkit-css-endless-rotation-animation */
+@-webkit-keyframes rotating {
+  from {
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotating {
+  from {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+.rotating {
+  -webkit-animation: rotating 2s linear infinite;
+  -moz-animation: rotating 2s linear infinite;
+  -ms-animation: rotating 2s linear infinite;
+  -o-animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
+}
+
+.shakingL {
+
+  -webkit-animation: shakeL 1s linear infinite;
+  -moz-animation: shakeL 1s linear infinite;
+  -ms-animation: shakeL 1s linear infinite;
+  -o-animation: shakeL 1s linear infinite;
+  animation: shakeL 1s linear infinite;
+}
+
+@keyframes shakeL {
+	
+  10%, 90% {
+    transform: rotate(20deg)
+  }
+  
+  20%, 80% {
+    transform: rotate(-25deg)
+  }
+
+  30%, 50%, 70% {
+    transform: rotate(15deg) 
+  }
+
+  40%, 60% {
+    transform: rotate(-10deg)
+  }
+}
+
+.shakingR {
+
+  -webkit-animation: shakeR 1s linear infinite;
+  -moz-animation: shakeR 1s linear infinite;
+  -ms-animation: shakeR 1s linear infinite;
+  -o-animation: shakeR 1s linear infinite;
+  animation: shakeR 1s linear infinite;
+}
+
+@keyframes shakeR {
+	0%, 100% {
+		transform:scale(-1, 1);
+	}
+  10%, 90% {
+    transform: rotate(20deg) scale(-1, 1);
+  }
+  
+  20%, 80% {
+    transform: rotate(-25deg) scale(-1, 1);
+  }
+
+  30%, 50%, 70% {
+    transform: rotate(15deg) scale(-1, 1);
+  }
+
+  40%, 60% {
+    transform: rotate(-10deg) scale(-1, 1);
+  }
+}
+
+

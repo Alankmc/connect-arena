@@ -724,6 +724,8 @@ function PlayerSelect(game) {
 		if (this.playerTypes[player - 1] == type) {
 			return;
 		}
+
+		this.mugs[player - 1].classList.toggle("fullFlipTransform-active");
 		this.mugs[player - 1].src = "images/mugshots/" + type + "_mug.png";
 		this.playerTypes[player - 1] = type;
 		this.game.selectedPlayer(player - 1, type);
@@ -741,6 +743,7 @@ function PlayerSelect(game) {
 		this.nodes = document.getElementsByClassName("playerSelect");
 		this.NUM_NODES = this.nodes.length;
 		this.mugs = [el("player1Mug"), el("player2Mug")];
+
 		this.selectedPlayer(1, 'human');
 		this.selectedPlayer(2, 'human');
 		
