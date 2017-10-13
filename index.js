@@ -36,16 +36,18 @@ function showPlayerExplanation(playerType, isShow) {
 	var explanation = "";
 	switch(playerType) {
 		case 'human': 
-		explanation = "Human Player! Click on the grid to set your Tic!";
-		break;
+			explanation = "Human Player! Click on the grid to set your Tic!";
+			break;
 		case 'random':
-		explanation = "Random Tics across the board! If you lose, you're not bad - just very VERY unlucky."
-		break;
+			explanation = "Random Tics across the board! If you lose, you're not bad - just very VERY unlucky."
+			break;
+		case 'scaredyCat':
+			explanation = "Scaredy Cat really does not want to lose."
+			break;
 		default:
-		break;
+			break;
 	}
 	explainP.innerHTML = explanation;
-	// console.log(explanation)
 };
 
 function hidePlayerExplanation() {
@@ -84,7 +86,42 @@ function getMatrixMax(arr) {
 	}
 	
 	return max;
-}
+};
+
+function getMaxIndexes(arr) {
+	var max = -10;
+	var indexes = [];
+	for (var i = 0; i < arr.length; i++) {
+		if (arr[i] > max) {
+			indexes = [i];
+		} else if (arr[i] == max) {
+			indexes.push(i);
+		}
+	}
+
+	return indexes;
+};
+
+function findIndexes(arr, value) {
+	var indexes = [];
+	for (var i = 0; i < arr.length; i++) {
+		if (arr[i] == value) {
+			indexes.push(i);
+		} 
+	}
+
+	return indexes;
+};
+
+function getArrMax(arr) {
+	var max = arr[0];
+	for (var i = 1; i < arr.length; i++) {
+		if (arr[i] > max) {
+			max = arr[i];
+		}
+	}
+	return max;
+};
 
 // Global Params:
 RESOURCES = {
@@ -132,14 +169,26 @@ function Board(game) {
 	// Are you having fun, or are you getting board?
 	this.getBoard = function () {
 		return this.board;
-	}
+	};
 
 	this.getEmpties = function () {
 		return this.emptyCells;
-	}
+	};
 
 	this.getThis = function() {
 		return this;
+	};
+
+	this.getDangers = function() {
+		return this.dangerMatrices;
+	};
+
+	this.getMaxDangers = function() {
+		return this.maxDangers;
+	};
+
+	this.getBoardSize = function() {
+		return this.BOARD_SIZE;
 	}
 
 	this.insertTic = function(player, row, col) {
@@ -388,11 +437,11 @@ function Game() {
 
 	this.getWinLength = function () {
 		return this.WIN_LENGTH;
-	}
+	};
 
 	this.setPlayerSelect = function (playerSelect) {
 		this.playerSelect = playerSelect;
-	}
+	};
 
 	this.toggleDivsDueToState = function() {
 		switch(this.currentState) {
@@ -440,7 +489,7 @@ function Game() {
 		}
 
 		return;
-	}
+	};
 	
 
 	this.playerMove = function(player, row, col) {
@@ -449,7 +498,7 @@ function Game() {
 		// this.board[row][col] = this.PLAYER_TIC[player - 1];
 
 		var wonYet = this.board.lookForEnd(this.WIN_LENGTH);
-		// console.log("== END! " + wonYet)
+		
 		if (wonYet >= 0) {
 			if (wonYet == 0) {
 				el('gameEnd').innerHTML = "TIE!";
@@ -549,7 +598,7 @@ function PlayerSelect(game) {
 	this.playerTypes = [null, null];
 
 	this.selectedPlayer = function (player, type) {
-		// console.log(this.mugs)
+		
 		// Does this make it faster?
 		// Like... even super marginally...?
 		// ....probably not
@@ -559,7 +608,7 @@ function PlayerSelect(game) {
 		this.mugs[player - 1].src = "images/mugshots/" + type + "_mug.png";
 		this.playerTypes[player - 1] = type;
 		this.game.selectedPlayer(player - 1, type);
-	}
+	};
 
 	this.toggleSelect = function(isShow) {
 
@@ -585,9 +634,74 @@ function RobotMaker(game) {
 	this.move;
 	this.game = game;
 
+	this.scaredyCatMove = function (boardObj) {
+
+		var enemyDangers = boardObj.getDangers()[this.myState - 1];
+		var enemyMaxDangers = boardObj.getMaxDangers()[this.myState - 1];
+
+		var maxDangerValue = getArrMax(enemyMaxDangers);
+		var chooseFrom = [];
+		// console.log(enemyMaxDangers);
+		// console.log("Max Danger: " + maxDangerValue);
+
+		// If no danger at all, simply put in random place
+		if (maxDangerValue <= 0) {
+			const empties = boardObj.getEmpties();
+			var pickCoordinate = Math.floor((empties.length * Math.random()));
+			return empties[pickCoordinate];
+		}
+		
+		// var numInterestingSpots = 0;
+		var interestingSpots = [];
+		var boardSize = boardObj.getBoardSize();
+		var winLength = this.game.getWinLength();
+		var board = boardObj.getBoard();
+		var thisDanger;
+		var thisI;
+		var thisJ;
+
+		for (var dangerIndex = 0; dangerIndex < enemyMaxDangers.length; dangerIndex++) {
+			if (enemyMaxDangers[dangerIndex] < maxDangerValue) {
+				continue;
+			}
+
+			thisDanger = enemyDangers[dangerIndex];
+			for (var i = 0; i < thisDanger.length; i++) {
+				for (var j = 0; j < thisDanger[0].length; j++) {
+					if (thisDanger[i][j] == maxDangerValue) {
+						for (k = 0; k < winLength; k++) {
+							if (dangerIndex == 0) {
+								thisI = i;
+								thisJ = j + k;
+							} else if (dangerIndex == 1) {
+								thisI = i + k;
+								thisJ = j;
+							} else if (dangerIndex == 2) {
+								thisI = i + k;
+								thisJ = j + k;
+							} else if (dangerIndex == 3) {
+								thisI = i + k;
+								thisJ = j - k + winLength - 1;
+							}
+							
+							if (board[thisI][thisJ] == EMPTY_TIC) {
+								// console.log("For DangerIndex: " + dangerIndex+ " Pushing " + thisI + ", " + thisJ)
+								interestingSpots.push([thisI, thisJ]);
+							}
+						}
+					}
+				}
+			}
+		}
+		// console.log(interestingSpots);
+		// console.log("=== Interesting spots ===");
+		var pickCoordinate = Math.floor((interestingSpots.length * Math.random()));
+		return interestingSpots[pickCoordinate];
+	};
+
 	// Random simply put in tics in random places
 	this.randomMove = function (boardObj) {
-		var empties = boardObj.getEmpties();
+		const empties = boardObj.getEmpties();
 
 		var pickCoordinate = Math.floor((empties.length * Math.random()));
 		
@@ -599,10 +713,13 @@ function RobotMaker(game) {
 
 		switch(botType) {
 			case 'random':
-			newBot = new Robot(game, 'random', this.randomMove, myState);
-			break;
+				newBot = new Robot(game, 'random', this.randomMove, myState);
+				break;
+			case 'scaredyCat':
+				newBot = new Robot(game, 'scaredyCat', this.scaredyCatMove, myState);
+				break;
 			default:
-			break;
+				break;
 		}
 
 		return newBot;

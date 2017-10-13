@@ -22,6 +22,10 @@ p, div, form, table, td, th, tr, h1 {
 	content:url("images/icons/random_icon.png");
 }
 
+.scaredyCatIcon{
+	content:url("images/icons/scaredyCat_icon.png");
+}
+
 .playerSelectTable {
 	border-collapse: collapse;
 	margin:auto;
