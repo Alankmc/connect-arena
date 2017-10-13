@@ -27,16 +27,26 @@ p, div, form, table, td, th, tr, h1 {
 }
 
 .blackBeardIcon {
-		content:url("images/icons/blackBeard_icon.png");
+	content:url("images/icons/blackBeard_icon.png");
 }
+
+.sharpSwordsmanIcon {
+	content:url("images/icons/sharpSwordsman_icon.png");
+}
+
+.cleverShieldsmanIcon {
+	content:url("images/icons/cleverShieldsman_icon.png");
+}
+
 
 .playerSelectTable {
 	border-collapse: collapse;
 	margin:auto;
 	allign:"center";
-	width:"50%";
+	
 }
 
 .explain {
-	font-size:large;
+	font-size:larger;
+	width: 70%;
 }

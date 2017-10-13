@@ -45,7 +45,13 @@ function showPlayerExplanation(playerType, isShow, color) {
 			explanation = "Scaredy Cat is timid and smol, and will not try to win - but is very VERY scared of losing."
 			break;
 		case 'blackBeard':
-			explanation = "ARRRGGG! The most aggressive of all the seven seas, Black Beard simply wants to win, and is not scared of the embrace of death - or loss at tic tac toe, in this case.";
+			explanation = "ARRRGGG! The most aggressive of all the seven seas, Blackbeard simply wants to win, and is not scared of the embrace of death - or loss at tic tac toe, in this case.";
+			break;
+		case 'sharpSwordsman':
+			explanation = "Trained in the art of battle, this cunning duelist will try at most to best you, all the while parrying your attacks."
+			break;
+		case 'cleverShieldsman':
+			explanation = "Paragon of defense, Clever Shieldsman will constantly defend itself. But when it finds it's safe to strike, expect a smart counter-attack!";
 			break;
 		default:
 			break;
@@ -641,10 +647,10 @@ function RobotMaker(game) {
 
 	// Scaredy Cat simply really does not want to lose
 	this.scaredyCatMove = function (boardObj) {
-		var enemyDangers = boardObj.getDangers()[this.myState - 1];
-		var enemyMaxDangers = boardObj.getMaxDangers()[this.myState - 1];
+		var opDangers = boardObj.getDangers()[this.myState - 1];
+		var opMaxDangers = boardObj.getMaxDangers()[this.myState - 1];
 
-		var maxDangerValue = getArrMax(enemyMaxDangers);
+		var maxDangerValue = getArrMax(opMaxDangers);
 		var chooseFrom = [];
 
 		// If no danger at all, simply put in random place
@@ -654,17 +660,17 @@ function RobotMaker(game) {
 			return empties[pickCoordinate];
 		}
 		
-		var dangerousSpots = this.getDangerousSpots(boardObj, enemyDangers, enemyMaxDangers, maxDangerValue);
+		var dangerousSpots = this.getDangerousSpots(boardObj, opDangers, opMaxDangers, maxDangerValue);
 		var pickCoordinate = Math.floor((dangerousSpots.length * Math.random()));
 		return dangerousSpots[pickCoordinate];
 	};
 
 	// Blackbeard does not care about losing - just winning
-	this.blackBeardMove = function (boardObj) {
-		var ownDangers = boardObj.getDangers()[this.enemyState - 1];
-		var ownMaxDangers = boardObj.getMaxDangers()[this.enemyState - 1];
+	this.blackBeardMove = function(boardObj) {
+		var myDangers = boardObj.getDangers()[this.opState - 1];
+		var myMaxDangers = boardObj.getMaxDangers()[this.opState - 1];
 
-		var maxDangerValue = getArrMax(ownMaxDangers);
+		var maxDangerValue = getArrMax(myMaxDangers);
 		var chooseFrom = [];
 
 		// If no danger at all, simply put in random place
@@ -674,9 +680,87 @@ function RobotMaker(game) {
 			return empties[pickCoordinate];
 		}
 		
-		var dangerousSpots = this.getDangerousSpots(boardObj, ownDangers, ownMaxDangers, maxDangerValue);
+		var dangerousSpots = this.getDangerousSpots(boardObj, myDangers, myMaxDangers, maxDangerValue);
 		var pickCoordinate = Math.floor((dangerousSpots.length * Math.random()));
 		return dangerousSpots[pickCoordinate];
+	};
+
+	// Sharp Swordsman will attack first, but defend when in peril
+	this.sharpSwordsmanMove = function(boardObj) {
+		var myMaxDangers = boardObj.getMaxDangers()[this.opState - 1];
+		var opMaxDangers = boardObj.getMaxDangers()[this.myState - 1];
+		var myDangers = boardObj.getDangers()[this.opState - 1];
+		var opDangers = boardObj.getDangers()[this.myState - 1];
+
+		var myMax = getArrMax(myMaxDangers);
+		var opMax = getArrMax(opMaxDangers);
+
+		// No danger and nothing to do!
+		if (Math.max(myMax, opMax) <= 0) {
+			const empties = boardObj.getEmpties();
+			var pickCoordinate = Math.floor((empties.length * Math.random()));
+			return empties[pickCoordinate];
+		}
+
+		// If super close to winning, do the final stab!
+		if (myMax == this.game.WIN_LENGTH - 1) {
+			// Attack
+			var dangerousSpots = this.getDangerousSpots(boardObj, myDangers, myMaxDangers, myMax);
+			var pickCoordinate = Math.floor((dangerousSpots.length * Math.random()));
+			return dangerousSpots[pickCoordinate];
+		}
+
+		// Will only defend if close to losing
+		if (opMax > Math.floor(this.game.WIN_LENGTH * 0.5)) {
+			// Defend
+			var dangerousSpots = this.getDangerousSpots(boardObj, opDangers, opMaxDangers, opMax);
+			var pickCoordinate = Math.floor((dangerousSpots.length * Math.random()));
+			return dangerousSpots[pickCoordinate];
+		} else {
+			// Attack
+			var dangerousSpots = this.getDangerousSpots(boardObj, myDangers, myMaxDangers, myMax);
+			var pickCoordinate = Math.floor((dangerousSpots.length * Math.random()));
+			return dangerousSpots[pickCoordinate];
+		}
+
+	};
+
+	this.cleverShieldsmanMove = function(boardObj) {
+		var myMaxDangers = boardObj.getMaxDangers()[this.opState - 1];
+		var opMaxDangers = boardObj.getMaxDangers()[this.myState - 1];
+		var myDangers = boardObj.getDangers()[this.opState - 1];
+		var opDangers = boardObj.getDangers()[this.myState - 1];
+
+		var myMax = getArrMax(myMaxDangers);
+		var opMax = getArrMax(opMaxDangers);
+
+		// No danger and nothing to do!
+		if (Math.max(myMax, opMax) <= 0) {
+			const empties = boardObj.getEmpties();
+			var pickCoordinate = Math.floor((empties.length * Math.random()));
+			return empties[pickCoordinate];
+		}
+
+		// If super close to winning, do the final stab!
+		if (myMax == this.game.WIN_LENGTH - 1) {
+			// Attack
+			var dangerousSpots = this.getDangerousSpots(boardObj, myDangers, myMaxDangers, myMax);
+			var pickCoordinate = Math.floor((dangerousSpots.length * Math.random()));
+			return dangerousSpots[pickCoordinate];
+		}
+
+		// Will only attack if op is far from winning
+		if (myMax > opMax && opMax < this.game.WIN_LENGTH - 2) {
+			// Attack
+			var dangerousSpots = this.getDangerousSpots(boardObj, myDangers, myMaxDangers, myMax);
+			var pickCoordinate = Math.floor((dangerousSpots.length * Math.random()));
+			return dangerousSpots[pickCoordinate];
+		} else {
+			// Defend
+			var dangerousSpots = this.getDangerousSpots(boardObj, opDangers, opMaxDangers, opMax);
+			var pickCoordinate = Math.floor((dangerousSpots.length * Math.random()));
+			return dangerousSpots[pickCoordinate];
+		}
 	};
 
 	// Random simply put in tics in random places
@@ -701,6 +785,12 @@ function RobotMaker(game) {
 			case 'blackBeard':
 				newBot = new Robot(game, 'blackBeard', this.blackBeardMove, myState);
 				break;
+			case 'sharpSwordsman':
+				newBot = new Robot(game, 'sharpSwordsman', this.sharpSwordsmanMove, myState);
+				break;
+			case 'cleverShieldsman':
+				newBot = new Robot(game, 'cleverShieldsman', this.cleverShieldsmanMove, myState);
+				break;
 			default:
 				break;
 		}
@@ -718,7 +808,7 @@ function Robot(game, botType, makeMoveCallback, myState) {
 	this.DELAY = 1000;
 	this.makeMoveCallback = makeMoveCallback;
 	this.myState = myState;
-	this.enemyState = (myState == 1) ? 2 : 1;
+	this.opState = (myState == 1) ? 2 : 1;
 
 	this.getDangerousSpots = function (boardObj, dangerMatrices, maxDangers, maxDangerValue) {
 		
