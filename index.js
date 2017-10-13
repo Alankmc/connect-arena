@@ -635,7 +635,6 @@ function RobotMaker(game) {
 	this.game = game;
 
 	this.scaredyCatMove = function (boardObj) {
-
 		var enemyDangers = boardObj.getDangers()[this.myState - 1];
 		var enemyMaxDangers = boardObj.getMaxDangers()[this.myState - 1];
 
@@ -649,50 +648,9 @@ function RobotMaker(game) {
 			return empties[pickCoordinate];
 		}
 		
-		// var numInterestingSpots = 0;
-		var interestingSpots = [];
-		var boardSize = boardObj.getBoardSize();
-		var winLength = this.game.getWinLength();
-		var board = boardObj.getBoard();
-		var thisDanger;
-		var thisI;
-		var thisJ;
-
-		for (var dangerIndex = 0; dangerIndex < enemyMaxDangers.length; dangerIndex++) {
-			if (enemyMaxDangers[dangerIndex] < maxDangerValue) {
-				continue;
-			}
-
-			thisDanger = enemyDangers[dangerIndex];
-			for (var i = 0; i < thisDanger.length; i++) {
-				for (var j = 0; j < thisDanger[0].length; j++) {
-					if (thisDanger[i][j] == maxDangerValue) {
-						for (k = 0; k < winLength; k++) {
-							if (dangerIndex == 0) {
-								thisI = i;
-								thisJ = j + k;
-							} else if (dangerIndex == 1) {
-								thisI = i + k;
-								thisJ = j;
-							} else if (dangerIndex == 2) {
-								thisI = i + k;
-								thisJ = j + k;
-							} else if (dangerIndex == 3) {
-								thisI = i + k;
-								thisJ = j - k + winLength - 1;
-							}
-							
-							if (board[thisI][thisJ] == EMPTY_TIC) {
-								interestingSpots.push([thisI, thisJ]);
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		var pickCoordinate = Math.floor((interestingSpots.length * Math.random()));
-		return interestingSpots[pickCoordinate];
+		var dangerousSpots = this.getDangerousSpots(boardObj, enemyDangers, enemyMaxDangers, maxDangerValue);
+		var pickCoordinate = Math.floor((dangerousSpots.length * Math.random()));
+		return dangerousSpots[pickCoordinate];
 	};
 
 	// Random simply put in tics in random places
@@ -732,6 +690,51 @@ function Robot(game, botType, makeMoveCallback, myState) {
 	this.makeMoveCallback = makeMoveCallback;
 	this.myState = myState;
 	this.enemyState = (myState == 1) ? 2 : 1;
+
+	this.getDangerousSpots = function (boardObj, dangerMatrices, maxDangers, maxDangerValue) {
+		
+		var dangerousSpots = [];
+		var winLength = this.game.getWinLength();
+		var board = boardObj.getBoard();
+		var thisDanger;
+		var thisI;
+		var thisJ;
+
+		for (var dangerIndex = 0; dangerIndex < maxDangers.length; dangerIndex++) {
+			if (maxDangers[dangerIndex] < maxDangerValue) {
+				continue;
+			}
+
+			thisDanger = dangerMatrices[dangerIndex];
+			for (var i = 0; i < thisDanger.length; i++) {
+				for (var j = 0; j < thisDanger[0].length; j++) {
+					if (thisDanger[i][j] == maxDangerValue) {
+						for (k = 0; k < winLength; k++) {
+							if (dangerIndex == 0) {
+								thisI = i;
+								thisJ = j + k;
+							} else if (dangerIndex == 1) {
+								thisI = i + k;
+								thisJ = j;
+							} else if (dangerIndex == 2) {
+								thisI = i + k;
+								thisJ = j + k;
+							} else if (dangerIndex == 3) {
+								thisI = i + k;
+								thisJ = j - k + winLength - 1;
+							}
+							
+							if (board[thisI][thisJ] == EMPTY_TIC) {
+								dangerousSpots.push([thisI, thisJ]);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return dangerousSpots;
+	};
 
 	this.makeMove = function (boardObj) {
 		
