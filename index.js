@@ -272,7 +272,8 @@ function Board(game) {
 
 							wonTic = this.elementBoard[thisI][thisJ];
 							wonTic.src = RESOURCES.TICS.WIN[whoWon.toString()];
-							wonTic.classList.add("rotating");
+							wonTic.classList.add("pulsing");
+							// wonTic.classList.add("rotating");
 						}
 					}
 				}
@@ -288,7 +289,7 @@ function Board(game) {
 		// var tic = el("boardCell_" + row + "_" + col);
 		var tic = this.elementBoard[row][col];
 		tic.src = RESOURCES.TICS[player][0];
-		tic.classList.add("flipTransform-active");
+		tic.classList.add("fullFlipTransform-active");
 		/*** Empty Cells ***/
 		removeDoubleElement(this.emptyCells, [row, col]);
 
@@ -707,13 +708,13 @@ function PlayerSelect(game) {
 	this.playerTypes = [null, null];
 
 	this.makeShake = function (player) {
-		var className = (player == 1) ? "shakingL" : "shakingR"
-		this.mugs[player - 1].classList.add(className);
+		
+		this.mugs[player - 1].classList.add("shaking");
 	};
 
 	this.stopShake = function() {
-		this.mugs[0].classList.remove("shakingL");
-		this.mugs[1].classList.remove("shakingR");
+		this.mugs[0].classList.remove("shaking");
+		this.mugs[1].classList.remove("shaking");
 	}
 
 	this.selectedPlayer = function (player, type) {
@@ -724,9 +725,12 @@ function PlayerSelect(game) {
 		if (this.playerTypes[player - 1] == type) {
 			return;
 		}
-
+		this.mugs[player - 1].classList.remove("shaking")
 		this.mugs[player - 1].classList.toggle("fullFlipTransform-active");
-		this.mugs[player - 1].src = "images/mugshots/" + type + "_mug.png";
+		var source = (player == 1) ? 
+			"images/mugshots/" + type + "_mug.png" : 
+			"images/mugshots/flip/" + type + "_mug.png";
+		this.mugs[player - 1].src = source;
 		this.playerTypes[player - 1] = type;
 		this.game.selectedPlayer(player - 1, type);
 	};

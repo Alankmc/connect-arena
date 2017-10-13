@@ -1,12 +1,18 @@
 /* Animation... here goes */
 .flipTransform {
-  -webkit-transition: 0.2s;
-  -moz-transition: 0.2s;
-  -o-transition: 0.2s;
-  -ms-transition: 0.2s;
-  transition: 0.2s;
+  -webkit-transition: 0.4s;
+  -moz-transition: 0.4s;
+  -o-transition: 0.4s;
+  -ms-transition: 0.4s;
+  transition: 0.4s;
 }
-
+/*
+.flipTransform-active {
+  transform: rotateY(360deg);
+  -webkit-transform: rotateY(180deg);
+  -ms-transform: rotateY(180deg);
+}
+*/
 .fullFlipTransform {
   -webkit-transition: 0.4s;
   -moz-transition: 0.4s;
@@ -60,16 +66,42 @@ https://stackoverflow.com/questions/6410730/how-to-do-a-webkit-css-endless-rotat
   animation: rotating 2s linear infinite;
 }
 
-.shakingL {
+@-webkit-keyframes pulsing {
+  0%, 100%{
+    transform:scale(1,1);
+  }
 
-  -webkit-animation: shakeL 1s linear infinite;
-  -moz-animation: shakeL 1s linear infinite;
-  -ms-animation: shakeL 1s linear infinite;
-  -o-animation: shakeL 1s linear infinite;
-  animation: shakeL 1s linear infinite;
+  50% {
+    transform:scale(1.4, 1.4);
+  }
+}
+@keyframes pulsing {
+  0%, 100%{
+    transform:scale(1,1);
+  }
+
+  50% {
+    transform:scale(1.4, 1.4);
+  }
+}
+.pulsing {
+  -webkit-animation: pulsing 1.5s linear infinite;
+  -moz-animation: pulsing 1.5s linear infinite;
+  -ms-animation: pulsing 1.5s linear infinite;
+  -o-animation: pulsing 1.5s linear infinite;
+  animation: pulsing 1.5s linear infinite;
 }
 
-@keyframes shakeL {
+.shaking {
+
+  -webkit-animation: shake 1s linear infinite;
+  -moz-animation: shake 1s linear infinite;
+  -ms-animation: shake 1s linear infinite;
+  -o-animation: shake 1s linear infinite;
+  animation: shake 1s linear infinite;
+}
+
+@keyframes shake {
 	
   10%, 90% {
     transform: rotate(20deg)
@@ -87,35 +119,3 @@ https://stackoverflow.com/questions/6410730/how-to-do-a-webkit-css-endless-rotat
     transform: rotate(-10deg)
   }
 }
-
-.shakingR {
-
-  -webkit-animation: shakeR 1s linear infinite;
-  -moz-animation: shakeR 1s linear infinite;
-  -ms-animation: shakeR 1s linear infinite;
-  -o-animation: shakeR 1s linear infinite;
-  animation: shakeR 1s linear infinite;
-}
-
-@keyframes shakeR {
-	0%, 100% {
-		transform:scale(-1, 1);
-	}
-  10%, 90% {
-    transform: rotate(20deg) scale(-1, 1);
-  }
-  
-  20%, 80% {
-    transform: rotate(-25deg) scale(-1, 1);
-  }
-
-  30%, 50%, 70% {
-    transform: rotate(15deg) scale(-1, 1);
-  }
-
-  40%, 60% {
-    transform: rotate(-10deg) scale(-1, 1);
-  }
-}
-
-
