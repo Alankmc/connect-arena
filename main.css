@@ -18,12 +18,16 @@ p, div, form, table, td, th, tr, h1 {
 	content:url("images/icons/human_icon.png");
 }
 
-.randomIcon{
+.randomIcon {
 	content:url("images/icons/random_icon.png");
 }
 
-.scaredyCatIcon{
+.scaredyCatIcon {
 	content:url("images/icons/scaredyCat_icon.png");
+}
+
+.blackBeardIcon {
+		content:url("images/icons/blackBeard_icon.png");
 }
 
 .playerSelectTable {
@@ -34,4 +38,5 @@ p, div, form, table, td, th, tr, h1 {
 }
 
 .explain {
+	font-size:large;
 }

@@ -31,7 +31,7 @@ function getPositiveNum(str) {
 	return num;
 };
 
-function showPlayerExplanation(playerType, isShow) {
+function showPlayerExplanation(playerType, isShow, color) {
 	var explainP = el("explainPlayer");
 	var explanation = "";
 	switch(playerType) {
@@ -39,15 +39,20 @@ function showPlayerExplanation(playerType, isShow) {
 			explanation = "Human Player! Click on the grid to set your Tic!";
 			break;
 		case 'random':
-			explanation = "Random Tics across the board! If you lose, you're not bad - just very VERY unlucky."
+			explanation = "Random Tics across the board! If you lose, you're not bad - just reaaally unlucky."
 			break;
 		case 'scaredyCat':
-			explanation = "Scaredy Cat really does not want to lose."
+			explanation = "Scaredy Cat is timid and smol, and will not try to win - but is very VERY scared of losing."
+			break;
+		case 'blackBeard':
+			explanation = "ARRRGGG! The most aggressive of all the seven seas, Black Beard simply wants to win, and is not scared of the embrace of death - or loss at tic tac toe, in this case.";
 			break;
 		default:
 			break;
 	}
+	explainP.style.color = color;
 	explainP.innerHTML = explanation;
+
 };
 
 function hidePlayerExplanation() {
@@ -634,6 +639,7 @@ function RobotMaker(game) {
 	this.move;
 	this.game = game;
 
+	// Scaredy Cat simply really does not want to lose
 	this.scaredyCatMove = function (boardObj) {
 		var enemyDangers = boardObj.getDangers()[this.myState - 1];
 		var enemyMaxDangers = boardObj.getMaxDangers()[this.myState - 1];
@@ -649,6 +655,26 @@ function RobotMaker(game) {
 		}
 		
 		var dangerousSpots = this.getDangerousSpots(boardObj, enemyDangers, enemyMaxDangers, maxDangerValue);
+		var pickCoordinate = Math.floor((dangerousSpots.length * Math.random()));
+		return dangerousSpots[pickCoordinate];
+	};
+
+	// Blackbeard does not care about losing - just winning
+	this.blackBeardMove = function (boardObj) {
+		var ownDangers = boardObj.getDangers()[this.enemyState - 1];
+		var ownMaxDangers = boardObj.getMaxDangers()[this.enemyState - 1];
+
+		var maxDangerValue = getArrMax(ownMaxDangers);
+		var chooseFrom = [];
+
+		// If no danger at all, simply put in random place
+		if (maxDangerValue <= 0) {
+			const empties = boardObj.getEmpties();
+			var pickCoordinate = Math.floor((empties.length * Math.random()));
+			return empties[pickCoordinate];
+		}
+		
+		var dangerousSpots = this.getDangerousSpots(boardObj, ownDangers, ownMaxDangers, maxDangerValue);
 		var pickCoordinate = Math.floor((dangerousSpots.length * Math.random()));
 		return dangerousSpots[pickCoordinate];
 	};
@@ -671,6 +697,9 @@ function RobotMaker(game) {
 				break;
 			case 'scaredyCat':
 				newBot = new Robot(game, 'scaredyCat', this.scaredyCatMove, myState);
+				break;
+			case 'blackBeard':
+				newBot = new Robot(game, 'blackBeard', this.blackBeardMove, myState);
 				break;
 			default:
 				break;
