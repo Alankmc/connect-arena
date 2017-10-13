@@ -13,7 +13,12 @@ Green: 23931d (or 35 - 147 - 29)
 	<link rel="stylesheet" type="text/css" href="main.css">
 
 </head>
+
 <body>
+
+<div id="credits">
+<span><b>Connect Arena</b> &copy; <a href="https://github.com/alankmc">Alan Cavalcanti</a>, made for fun in 2017 | Check out the code for this @ <a href="https://github.com/Alankmc/connect-arena">GitHub</a> | <button onclick="toggleNav()">Changelog</a></span>
+</div>
 	<!-- Done with amazing http://howtocenterincss.com. Such a life saver, this is. -->
 	<div style="display:flex;justify-content:center;align-items:center;font-size:55px;">
 		<img src="images/flare.png"></img>
@@ -180,18 +185,60 @@ Green: 23931d (or 35 - 147 - 29)
 			</td>
 		</tr>
 	</table>
+	<div id="mySidenav" class="sidenav">
+		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+		<div style="padding-left: 10px; padding-right: 20px; text-align: justify;"> 
+			<p class="changelogDate"><i>Oct/13/2017 - v0.1.1</i></p>
+			<p class="changelogContent">
+				- Made Changelog<br>
+				- Logged into Changelog that I made the Changelog<br>
+				- Felt happy about it<br>
+			</p>
+			<p class="changelogDate"><i>Oct/13/2017 - v0.1</i></p>
+			<p class="changelogContent">
+				Game is Minimally viable, with some pretty dumb and pretty smart bots.
+			</p>
+		</div>
+	</div>
+	
+	<!-- Add all page content inside this div if you want the side nav to push page content to the right (not used if you only want the sidenav to sit on top of the page -->
+	<div id="sideNavMain">
+	  
+	</div>
 
 	<script>
 		// Slider script
 		var slider = document.getElementById("robotDelay");
 		var output = document.getElementById("delayOutput");
+
 		output.innerHTML = slider.value; // Display the default slider value
 
 		// Update the current slider value (each time you drag the slider handle)
 		slider.oninput = function() {
 			output.innerHTML = this.value;
 		}
+		var isOpen = false;
+		function toggleNav() {
+			if (isOpen) {
+				closeNav();
+			} else {
+				openNav();
+			}
+		}
+		/* Set the width of the side navigation to 250px */
+		function openNav() {
+    		document.getElementById("mySidenav").style.width = "500px";
+    		isOpen = true;
+		}
+
+		// Sidenav code
+		/* Set the width of the side navigation to 0 */
+		function closeNav() {
+		    document.getElementById("mySidenav").style.width = "0";
+		    isOpen = false;
+		}
 	</script>
+
 
 	<script src="index.js"></script>
 
