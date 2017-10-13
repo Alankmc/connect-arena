@@ -29,6 +29,37 @@ Green: 23931d (or 35 - 147 - 29)
 					<img id="player1Tic"></img><br>
 					<img id="player1Mug" src="images/mugshots/blank.png"></img><br>
 				</div>	
+			</th>	
+			<th>
+				<div id="boardCell">
+					<p> Board </p>
+					<div id="boardDiv" line-height="0">
+					</div>
+				</div>
+			</th>
+			<th>
+				<div id="player2">
+					<p> Player 2 </p>
+					<img id="player2Tic"></img><br>
+					<img id="player2Mug" style="transform:rotatey(180deg);" src="images/mugshots/blank.png"></img><br>
+				</div>
+			</th>				
+		</tr>
+		<tr>
+			<td>
+			</td>
+			<td align="center">
+				<div id="playerTurn">
+					Player turn: <br>
+					<img id="playerIcon" src="images/blank.png"></img> 
+				</div>
+				<p id="gameEnd"></p> 
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<td>
 				<div id="selectPlayer1" class="playerSelect" align="center">
 					<p><i style="font-size:larger">Select Player</i></p>
 					<table class="playerSelectTable">
@@ -53,8 +84,8 @@ Green: 23931d (or 35 - 147 - 29)
 						<tr>
 							<td class="playerCell">
 								<img class="scaredyCatIcon" onclick="playerSelect.selectedPlayer(1, 'scaredyCat');" onmouseenter="showPlayerExplanation('scaredyCat', true, '#2c7aac');" onmouseleave="hidePlayerExplanation();"></img>
-								<br>
-								Scaredy<br>Cat
+							<br>
+							Scaredy<br>Cat
 							</td>
 							<td class="playerCell">
 								<img class="sharpSwordsmanIcon" onclick="playerSelect.selectedPlayer(1, 'sharpSwordsman');" onmouseenter="showPlayerExplanation('sharpSwordsman', true, '#2c7aac');" onmouseleave="hidePlayerExplanation();"></img>
@@ -70,26 +101,13 @@ Green: 23931d (or 35 - 147 - 29)
 						</tr>
 					</table>
 				</div>
-			</th>	
-			<th valign="top">
-				<div id="boardCell">
-					<p> Board </p>
-					<div id="boardDiv" line-height="0">
-					</div>
+			</td>
+			<td width="50%">
+				<div align="center">
+					<p align="center" id="explainPlayer" class="explain"></p>	
 				</div>
-				<div id="playerTurn" align="center">
-					Player turn: <br>
-					<img id="playerIcon" src="images/blank.png"></img> 
-				</div>
-				<p id="gameEnd"></p> 
-
-			</th>
-			<th>
-				<div id="player2">
-					<p> Player 2 </p>
-					<img id="player2Tic"></img><br>
-					<img id="player2Mug" style="transform:rotatey(180deg);" src="images/mugshots/blank.png"></img><br>
-				</div>
+			</td>
+			<td>
 				<div id="selectPlayer2" class="playerSelect" align="center">
 					<p><i style="font-size:larger">Select Player</i></p>
 					<br>
@@ -132,24 +150,14 @@ Green: 23931d (or 35 - 147 - 29)
 					</table>
 					
 				</div>
-			</th>				
-		</tr>
-		<tr>
-			<td>
-			</td>
-			<td align="center">
-
-			</td>
-			<td>
 			</td>
 		</tr>
-		
 	</table>
 	<br>
 	<!-- game controls -->
 	<table id="gameControls" width="100%">
 		<tr>
-			<td width="50%">
+			<td>
 				<div id="startGameControls">
 					<form id="gameControlsForm" action="javascript:game.newGame();">
 						Number of Rows (min 3): <input id="boardInputRows" /><br>
@@ -157,41 +165,22 @@ Green: 23931d (or 35 - 147 - 29)
 						Win Length (min 3, max smallest of two above values): <input id="boardInputLength" /><br>
 						(Tic Tac Toe would be 3 rows, 3 cols, 3 win length, for example).<br>
 						<br>
-						(Optional) Robot think time [ms] (just a delay, btw. Won't affect robot's intelligence): <br>
-						<input type="range" min="5" max="2000" value="150" class="slider" id="robotDelay"> 
-						<p style="display:inline">Value:</p> <p id="delayOutput" style="display:inline"><p style="display:inline"> ms</p>
-						<br>
-						<br>
+						(Optional) Robot think time [ms] (just a delay, btw. Won't affect robot's intelligence): <input id="robotDelay" /><br>
 						<input type="submit" value="Start New Game" />
-						</div> 
 					</form>
-				</div>
-				<div id="inGameControls">
-					<button onclick="game.resetGame()">Reset Game</button>
+
+					<p id="wrongParams" style="display:none">Please, correct Inputs</p>
 				</div>
 				<div id="playerControls">
 				</div>
 			</td>
 			<td>
-				<div align="center">
-					<p align="center" id="explainPlayer" class="explain"></p>	
-					<p id="wrongParams" style="display:none">Please, correct Inputs</p>
+				<div id="inGameControls">
+					<button onclick="game.resetGame()">Reset Game</button>
 				</div>
 			</td>
 		</tr>
 	</table>
-
-	<script>
-		// Slider script
-		var slider = document.getElementById("robotDelay");
-		var output = document.getElementById("delayOutput");
-		output.innerHTML = slider.value; // Display the default slider value
-
-		// Update the current slider value (each time you drag the slider handle)
-		slider.oninput = function() {
-			output.innerHTML = this.value;
-		}
-	</script>
 
 	<script src="index.js"></script>
 

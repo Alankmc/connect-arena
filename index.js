@@ -152,6 +152,14 @@ RESOURCES = {
 		BLANK:"images/blank3.png", 
 		1:["images/x3.png"],
 		2:["images/o3.png"],
+		WIN: {
+			1:["images/xWin.png"],
+			2:["images/oWin.png"],
+		},
+		DISABLE: {
+			1:["images/xDisable.png"],
+			2:["images/oDisable.png"],
+		},
 	},
 	GRID: {
 		VERTICAL: {
@@ -180,6 +188,7 @@ function Board(game) {
 	this.boardElement = document.getElementById("boardDiv");
 	this.numFilled = 0;
 	this.game = game;
+	this.elementBoard = [];
 
 	/* Helpful Structures */
 	// Contains all the empty cells
@@ -212,13 +221,68 @@ function Board(game) {
 
 	this.getBoardSize = function() {
 		return this.BOARD_SIZE;
-	}
+	};
+
+	// Change tic colors to disable if not part of end game and 
+	// win if part of end game
+	this.dyeBoard = function(whoWon, winLength) {
+		var key;
+		// Paint everything as Disabled
+		for (var i = 0; i < this.BOARD_SIZE[0]; i++) {
+			for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
+				if (this.board[i][j] != EMPTY_TIC) {
+					key = this.board[i][j].toString();
+					this.elementBoard[i][j].src = RESOURCES.TICS.DISABLE[key];	
+				}
+			}
+		}
+		console.log(whoWon)
+		if (whoWon == 0) {
+			return;
+		}
+		// Then paint the winnin streak as the color
+		// Go through dangers to find the winnin streak
+		var winnerDangers = this.maxDangers[whoWon % 2];
+		var theseDangers = this.dangerMatrices[whoWon  % 2]
+		var thisDanger;
+		for (var dangerIndex = 0; dangerIndex < 4; dangerIndex++) {
+			if (winnerDangers[dangerIndex] < winLength) {
+				continue;
+			}
+			thisDanger = theseDangers[dangerIndex];
+			for (var i = 0; i < thisDanger.length; i++) {
+				for (var j = 0; j < thisDanger[0].length; j++) {
+					if (thisDanger[i][j] >= winLength) {
+						for (k = 0; k < winLength; k++) {
+							if (dangerIndex == 0) {
+								thisI = i;
+								thisJ = j + k;
+							} else if (dangerIndex == 1) {
+								thisI = i + k;
+								thisJ = j;
+							} else if (dangerIndex == 2) {
+								thisI = i + k;
+								thisJ = j + k;
+							} else if (dangerIndex == 3) {
+								thisI = i + k;
+								thisJ = j - k + winLength - 1;
+							}
+							
+							this.elementBoard[thisI][thisJ].src = RESOURCES.TICS.WIN[whoWon.toString()];
+						}
+					}
+				}
+			}
+		}
+
+	};
+
 
 	this.insertTic = function(player, row, col) {
 		const winLength = this.game.getWinLength();
 		this.board[row][col] = player;
-		var tic = el("boardCell_" + row + "_" + col);
-
+		// var tic = el("boardCell_" + row + "_" + col);
+		var tic = this.elementBoard[row][col];
 		tic.src = RESOURCES.TICS[player][0];
 		
 		/*** Empty Cells ***/
@@ -301,14 +365,16 @@ function Board(game) {
 
 	this.createBoardNodes = function() {
 		this.numFilled = 0;
-
+		this.elementBoard = [];
 		var boardDiv = document.createElement("div");
 		var game = this.game;
 
 		boardDiv.id = "boardDiv";
 		boardDiv.style["line-height"] = 0;
-		
+		var newElementLine;
+
 		for (var i = 0; i < this.BOARD_SIZE[0]; i++) {
+			newElementLine = [];
 			for (var j = 0; j < this.BOARD_SIZE[1]; j++) {
 				var thisBar = new Image();
 
@@ -341,6 +407,7 @@ function Board(game) {
 				if (j != 0) {
 					boardDiv.appendChild(thisBar);
 				}
+				newElementLine.push(newImg);
 				boardDiv.appendChild(newImg);
 			}
 
@@ -367,10 +434,12 @@ function Board(game) {
 					boardDiv.appendChild(thisBar);
 				}
 			}
+			this.elementBoard.push(newElementLine);
 			boardDiv.appendChild(document.createElement("br"));
 		}
 
 		el("boardCell").replaceChild(boardDiv, this.boardElement);
+		console.log(this.elementBoard);
 		this.boardElement = boardDiv;
 	};
 
@@ -398,7 +467,7 @@ function Board(game) {
 		this.emptyCells = [];
 		this.dangerMatrices = [];
 		this.maxDangers = [];
-		
+		this.elementBoard = [];
 		const winLength = this.game.getWinLength();
 		
 		// For each player, make the danger matrices
@@ -524,22 +593,26 @@ function Game() {
 		
 		if (wonYet >= 0) {
 			if (wonYet == 0) {
+				this.whoWon = 0;
 				el('gameEnd').innerHTML = "TIE!";
 			} else {
 				this.whoWon = this.currentState;
 				el('gameEnd').innerHTML = "PLAYER " + this.whoWon + " WINS!";
+
 			}
+			this.board.dyeBoard(this.whoWon, this.WIN_LENGTH);
+
 			this.currentState = 0;
 		} else {
-			if (this.currentState == 1) {
-				this.currentState = 2;
-			} else {
-				this.currentState = 1;
-			}
-			// if ()
-			// this.signalNextMove();
+			this.currentState = (this.currentState == 1) ? 2 : 1;
+			// if (this.currentState == 1) {
+			//	this.currentState = 2;
+			// } else {
+			// 	this.currentState = 1;
+			// }
+			
 		}
-		// this.drawBoard();
+		
 		this.toggleDivsDueToState();
 	};
 

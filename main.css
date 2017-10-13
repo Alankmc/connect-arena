@@ -4,6 +4,7 @@ p, div, form, table, td, th, tr, h1 {
 
 .playerLabel {
 	font-size:small;
+	text-align:center;
 }
 
 #player1Tic {
@@ -38,12 +39,15 @@ p, div, form, table, td, th, tr, h1 {
 	content:url("images/icons/cleverShieldsman_icon.png");
 }
 
+.playerCell {
+	text-align:center;
+	font-size:small;
+}
 
 .playerSelectTable {
-	border-collapse: collapse;
 	margin:auto;
-	allign:"center";
-	
+	align:center;
+
 }
 
 .explain {
