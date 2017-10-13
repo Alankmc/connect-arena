@@ -24,7 +24,9 @@ function showByIds(ids) {
 // Return negative number if incorrect
 function getPositiveNum(str) {
 	var num = parseInt(str, 10);
-
+	if (str == "") {
+		return 0;
+	}
 	if (isNaN(num)) {
 		return -1;
 	}
@@ -134,6 +136,16 @@ function getArrMax(arr) {
 	return max;
 };
 
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+/*
+async function sleep(ms, fn, ...args) {
+    await timeout(ms);
+    return fn(...args);
+};
+*/
 // Global Params:
 RESOURCES = {
 	TICS: {
@@ -484,7 +496,7 @@ function Game() {
 
 	// Will begin looping through the game until it ends, in case there are only robots.
 	// If there's a human, it will be cut short.
-	this.signalNextMove = function() {
+	this.signalNextMove = async function() {
 		var robotChoice;
 		
 		while (this.currentState == 1 || this.currentState == 2) {
@@ -494,7 +506,7 @@ function Game() {
 				break;
 			}
 			// It's a robot. Make a move.
-			robotChoice = this.robots[this.currentState - 1].makeMove(this.board.getThis());
+			robotChoice = await this.robots[this.currentState - 1].makeMove(this.board.getThis());
 			
 			this.playerMove(this.currentState, robotChoice[0], robotChoice[1]);
 		}
@@ -548,10 +560,16 @@ function Game() {
 		var numRows = getPositiveNum(el('boardInputRows').value);
 		var numCols = getPositiveNum(el('boardInputCols').value);
 		var winLength = getPositiveNum(el('boardInputLength').value);
+		var botDelay = getPositiveNum(el('robotDelay').value);
 
-		if (numRows >= 3 && numCols >= 3 && winLength >= 3 && winLength <= Math.min(numRows, numCols)) {
+		if (numRows >= 3 && 
+			numCols >= 3 && 
+			winLength >= 3 && 
+			winLength <= Math.min(numRows, numCols) &&
+			botDelay >= 0) {
 			this.WIN_LENGTH = winLength;
 			this.board.resetBoard(numRows, numCols);
+			this.robotMaker.setDelay(botDelay);
 		} else {
 			showByIds(["wrongParams"]);
 			return;
@@ -641,9 +659,14 @@ function PlayerSelect(game) {
 
 /* ================= ROBOT MAKER ===================== */
 
-function RobotMaker(game) {
+function RobotMaker(game, delay = 500) {
 	this.move;
 	this.game = game;
+	this.DELAY = delay;
+
+	this.setDelay = function (delay) {
+		this.DELAY = delay;
+	};
 
 	// Scaredy Cat simply really does not want to lose
 	this.scaredyCatMove = function (boardObj) {
@@ -750,7 +773,7 @@ function RobotMaker(game) {
 		}
 
 		// Will only attack if op is far from winning
-		if (myMax > opMax && opMax < this.game.WIN_LENGTH - 2) {
+		if (myMax > opMax && opMax < Math.max(this.game.WIN_LENGTH - 3, 1)) {
 			// Attack
 			var dangerousSpots = this.getDangerousSpots(boardObj, myDangers, myMaxDangers, myMax);
 			var pickCoordinate = Math.floor((dangerousSpots.length * Math.random()));
@@ -777,19 +800,19 @@ function RobotMaker(game) {
 
 		switch(botType) {
 			case 'random':
-				newBot = new Robot(game, 'random', this.randomMove, myState);
+				newBot = new Robot(game, 'random', this.randomMove, myState, this.DELAY);
 				break;
 			case 'scaredyCat':
-				newBot = new Robot(game, 'scaredyCat', this.scaredyCatMove, myState);
+				newBot = new Robot(game, 'scaredyCat', this.scaredyCatMove, myState, this.DELAY);
 				break;
 			case 'blackBeard':
-				newBot = new Robot(game, 'blackBeard', this.blackBeardMove, myState);
+				newBot = new Robot(game, 'blackBeard', this.blackBeardMove, myState, this.DELAY);
 				break;
 			case 'sharpSwordsman':
-				newBot = new Robot(game, 'sharpSwordsman', this.sharpSwordsmanMove, myState);
+				newBot = new Robot(game, 'sharpSwordsman', this.sharpSwordsmanMove, myState, this.DELAY);
 				break;
 			case 'cleverShieldsman':
-				newBot = new Robot(game, 'cleverShieldsman', this.cleverShieldsmanMove, myState);
+				newBot = new Robot(game, 'cleverShieldsman', this.cleverShieldsmanMove, myState, this.DELAY);
 				break;
 			default:
 				break;
@@ -802,10 +825,10 @@ function RobotMaker(game) {
 
 /* ===================== ROBOT ================== */
 
-function Robot(game, botType, makeMoveCallback, myState) {
+function Robot(game, botType, makeMoveCallback, myState, delay) {
 	this.game = game;
 	this.botType = botType;
-	this.DELAY = 1000;
+	this.DELAY = delay;
 	this.makeMoveCallback = makeMoveCallback;
 	this.myState = myState;
 	this.opState = (myState == 1) ? 2 : 1;
@@ -855,9 +878,14 @@ function Robot(game, botType, makeMoveCallback, myState) {
 		return dangerousSpots;
 	};
 
-	this.makeMove = function (boardObj) {
+	this.makeMove = async function (boardObj) {
+		if (this.DELAY > 10) {
+			await timeout(this.DELAY);
+		}
 		
 		return this.makeMoveCallback(boardObj);
+		  
+				
 	};
 };
 
@@ -869,12 +897,6 @@ game.init(playerSelect);
 playerSelect.init();
 
 /* -------------- Test ----------------- */
-
-
-
-
-
-
 
 
 
