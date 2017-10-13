@@ -272,9 +272,7 @@ function Board(game) {
 			this.maxDangers[ownIndex][i] = getMatrixMax(ownMatrices[i]);
 			this.maxDangers[opIndex][i] = getMatrixMax(opponentMatrices[i]);	
 		}
-		// console.log("Dangers: ");
-		// console.log(this.dangerMatrices);
-		// console.log(this.maxDangers);
+		
 		this.numFilled++;
 	};
 
@@ -377,7 +375,9 @@ function Board(game) {
 		this.emptyCells = [];
 		this.dangerMatrices = [];
 		this.maxDangers = [];
+		
 		const winLength = this.game.getWinLength();
+		
 		// For each player, make the danger matrices
 		for (var i = 0; i < 2; i++) {
 			this.maxDangers.push([0, 0, 0, 0]);
@@ -539,8 +539,8 @@ function Game() {
 		var winLength = getPositiveNum(el('boardInputLength').value);
 
 		if (numRows >= 3 && numCols >= 3 && winLength >= 3 && winLength <= Math.min(numRows, numCols)) {
-			this.board.resetBoard(numRows, numCols);
 			this.WIN_LENGTH = winLength;
+			this.board.resetBoard(numRows, numCols);
 		} else {
 			showByIds(["wrongParams"]);
 			return;
@@ -641,8 +641,6 @@ function RobotMaker(game) {
 
 		var maxDangerValue = getArrMax(enemyMaxDangers);
 		var chooseFrom = [];
-		// console.log(enemyMaxDangers);
-		// console.log("Max Danger: " + maxDangerValue);
 
 		// If no danger at all, simply put in random place
 		if (maxDangerValue <= 0) {
@@ -685,7 +683,6 @@ function RobotMaker(game) {
 							}
 							
 							if (board[thisI][thisJ] == EMPTY_TIC) {
-								// console.log("For DangerIndex: " + dangerIndex+ " Pushing " + thisI + ", " + thisJ)
 								interestingSpots.push([thisI, thisJ]);
 							}
 						}
@@ -693,8 +690,7 @@ function RobotMaker(game) {
 				}
 			}
 		}
-		// console.log(interestingSpots);
-		// console.log("=== Interesting spots ===");
+		
 		var pickCoordinate = Math.floor((interestingSpots.length * Math.random()));
 		return interestingSpots[pickCoordinate];
 	};
