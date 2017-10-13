@@ -236,7 +236,7 @@ function Board(game) {
 				}
 			}
 		}
-		console.log(whoWon)
+		
 		if (whoWon == 0) {
 			return;
 		}
@@ -245,6 +245,7 @@ function Board(game) {
 		var winnerDangers = this.maxDangers[whoWon % 2];
 		var theseDangers = this.dangerMatrices[whoWon  % 2]
 		var thisDanger;
+		var wonTic;
 		for (var dangerIndex = 0; dangerIndex < 4; dangerIndex++) {
 			if (winnerDangers[dangerIndex] < winLength) {
 				continue;
@@ -268,7 +269,10 @@ function Board(game) {
 								thisJ = j - k + winLength - 1;
 							}
 							
-							this.elementBoard[thisI][thisJ].src = RESOURCES.TICS.WIN[whoWon.toString()];
+
+							wonTic = this.elementBoard[thisI][thisJ];
+							wonTic.src = RESOURCES.TICS.WIN[whoWon.toString()];
+							wonTic.classList.add("rotating");
 						}
 					}
 				}
@@ -284,7 +288,7 @@ function Board(game) {
 		// var tic = el("boardCell_" + row + "_" + col);
 		var tic = this.elementBoard[row][col];
 		tic.src = RESOURCES.TICS[player][0];
-		
+		tic.classList.add("flipTransform-active");
 		/*** Empty Cells ***/
 		removeDoubleElement(this.emptyCells, [row, col]);
 
@@ -397,11 +401,6 @@ function Board(game) {
 				newImg.row = i;
 				newImg.col = j;
 				// Event listener that self defeats
-				newImg.addEventListener("click", function blankListener() {
-					// game.clickedCell(this.row, this.col);
-					game.clickedCell(this.row, this.col);
-					removeEventListener("click", blankListener);
-				}, false);
 
 				// Append images. First, bar
 				if (j != 0) {
@@ -409,6 +408,13 @@ function Board(game) {
 				}
 				newElementLine.push(newImg);
 				boardDiv.appendChild(newImg);
+				newImg.classList.add("flipTransform");
+				newImg.addEventListener("click", function blankListener() {
+					
+					game.clickedCell(this.row, this.col);
+					removeEventListener("click", blankListener);
+					
+				}, false);
 			}
 
 			// Now, make horizontal bars
@@ -439,7 +445,7 @@ function Board(game) {
 		}
 
 		el("boardCell").replaceChild(boardDiv, this.boardElement);
-		console.log(this.elementBoard);
+		
 		this.boardElement = boardDiv;
 	};
 
@@ -598,6 +604,7 @@ function Game() {
 			} else {
 				this.whoWon = this.currentState;
 				el('gameEnd').innerHTML = "PLAYER " + this.whoWon + " WINS!";
+				this.playerSelect.makeShake(this.whoWon);
 
 			}
 			this.board.dyeBoard(this.whoWon, this.WIN_LENGTH);
@@ -660,7 +667,7 @@ function Game() {
 
 		this.currentState = Math.floor(Math.random() * 2) + 1
 		this.numberOfMoves = 0;
-
+		this.playerSelect.stopShake();
 		this.toggleDivsDueToState();
 		this.signalNextMove();
 	};
@@ -698,6 +705,16 @@ function PlayerSelect(game) {
 	this.game = game;
 	this.mugs = [];
 	this.playerTypes = [null, null];
+
+	this.makeShake = function (player) {
+		var className = (player == 1) ? "shakingL" : "shakingR"
+		this.mugs[player - 1].classList.add(className);
+	};
+
+	this.stopShake = function() {
+		this.mugs[0].classList.remove("shakingL");
+		this.mugs[1].classList.remove("shakingR");
+	}
 
 	this.selectedPlayer = function (player, type) {
 		
