@@ -892,6 +892,12 @@ function RobotMaker(game, delay = 500) {
 		return empties[pickCoordinate];
 	};
 
+	this.neuralNetworkMove = function(botType) {
+		// Neural network will be inside robot
+		var nn = this.neuralNetwork;
+
+	}
+
 	this.make = function(botType, myState) {
 		var newBot = null;
 
@@ -911,6 +917,8 @@ function RobotMaker(game, delay = 500) {
 			case 'cleverShieldsman':
 				newBot = new Robot(game, 'cleverShieldsman', this.cleverShieldsmanMove, myState, this.DELAY);
 				break;
+			case 'neuralNetwork':
+				break;
 			default:
 				break;
 		}
@@ -922,13 +930,14 @@ function RobotMaker(game, delay = 500) {
 
 /* ===================== ROBOT ================== */
 
-function Robot(game, botType, makeMoveCallback, myState, delay) {
+function Robot(game, botType, makeMoveCallback, myState, delay, neuralNetwork = null) {
 	this.game = game;
 	this.botType = botType;
 	this.DELAY = delay;
 	this.makeMoveCallback = makeMoveCallback;
 	this.myState = myState;
 	this.opState = (myState == 1) ? 2 : 1;
+	this.neuralNetwork = neuralNetwork;
 
 	this.getDangerousSpots = function (boardObj, dangerMatrices, maxDangers, maxDangerValue) {
 		
@@ -994,6 +1003,13 @@ game.init(playerSelect);
 playerSelect.init();
 
 /* -------------- Test ----------------- */
+/*
+NEURAL_NETWORK = {
+	BOARD_SIZE: [],
+	WIN_LENGTH: bla,
+	NEURON_SIZES: [board area, level1, level2, level3,...],
+	
+}
 
 
 
@@ -1010,5 +1026,4 @@ playerSelect.init();
 
 
 
-
-
+*/
